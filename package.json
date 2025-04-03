@@ -5,9 +5,13 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": ""
+    "prepare": "husky"
   },
   "author": "Pedro Frias",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.0"
+  }
 }
