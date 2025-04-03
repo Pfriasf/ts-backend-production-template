@@ -1,0 +1,13 @@
+{
+  "name": "ts-backend-production-template",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": ""
+  },
+  "author": "Pedro Frias",
+  "license": "ISC",
+  "description": ""
+}
