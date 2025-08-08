@@ -3,6 +3,7 @@
         "commitlint",
         "husky",
         "eslint",
-        "nodemon"
+        "nodemon",
+        "Express"
     ]
 }
