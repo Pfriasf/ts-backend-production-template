@@ -2,6 +2,7 @@
     "conventionalCommits.scopes": [
         "commitlint",
         "husky",
-        "eslint"
+        "eslint",
+        "nodemon"
     ]
 }
