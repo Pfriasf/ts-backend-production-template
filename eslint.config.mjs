@@ -1,17 +1,28 @@
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
-
 import globals from 'globals';
 import { defineConfig } from 'eslint/config';
 import eslintConfigPrettier from 'eslint-config-prettier';
 
 export default defineConfig([
-    {
-        files: ['**/*.{js,mjs,cjs,ts,mts,cts}'],
-        plugins: { js },
-        extends: ['js/recommended', eslintConfigPrettier],
+  {
+    files: ['**/*.{js,mjs,cjs,ts,mts,cts}'],
+    ignores: [
+      'node_modules', 'tests', 'dist', 'build', 'coverage',
+      'out', 'public', 'tmp', 'temp',
+    ],
+    plugins: { js },
+    languageOptions: {
+      globals: globals.node,
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: import.meta.dirname,
+      }
     },
-    { files: ['**/*.js'], languageOptions: { sourceType: 'commonjs' } },
-    { files: ['**/*.{js,mjs,cjs,ts,mts,cts}'], languageOptions: { globals: globals.node } },
-    tseslint.configs.recommendedTypeChecked,
+    extends: [
+      js.configs.recommended,
+      ...tseslint.configs.recommendedTypeChecked,
+      eslintConfigPrettier,
+    ],
+  },
 ]);
