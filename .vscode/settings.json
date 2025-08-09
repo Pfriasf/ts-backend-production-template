@@ -10,6 +10,7 @@
         "router",
         "core",
         "controller",
-        "middleware"
+        "middleware",
+        "vscode"
     ]
 }
