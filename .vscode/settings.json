@@ -4,6 +4,12 @@
         "husky",
         "eslint",
         "nodemon",
-        "Express"
+        "Express",
+        "constants",
+        "utils",
+        "router",
+        "core",
+        "controller",
+        "middleware"
     ]
 }
