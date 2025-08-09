@@ -6,10 +6,10 @@ import eslintConfigPrettier from 'eslint-config-prettier';
 
 export default defineConfig([
   {
-    files: ['**/*.{js,mjs,cjs,ts,mts,cts}', '!eslint.config.mjs'],
+    files: ['**/*.{js,mjs,cjs,ts,mts,cts}'],
     ignores: [
       'node_modules', 'tests', 'dist', 'build', 'coverage',
-      'out', 'public', 'tmp', 'temp',
+      'out', 'public', 'tmp', 'temp', 'eslint.config.mjs'
     ],
     languageOptions: {
       globals: globals.node,
