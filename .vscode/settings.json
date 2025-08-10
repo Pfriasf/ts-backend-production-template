@@ -11,6 +11,7 @@
         "core",
         "controller",
         "middleware",
-        "vscode"
+        "vscode",
+        "logging"
     ]
 }
