@@ -1,3 +1,5 @@
+import { applicationEnvironment } from '../constant/application';
+
 export type HttpResponse = {
     success: boolean;
     statusCode: number;
@@ -22,3 +24,10 @@ export type HttpError = {
     data: unknown;
     trace?: object | null;
 };
+
+export interface Config {
+    PORT: number;
+    ENV: applicationEnvironment;
+    SERVER_URL: string;
+    LOG_LEVEL: string;
+}

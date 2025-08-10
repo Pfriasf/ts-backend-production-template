@@ -1,11 +1,6 @@
 import { applicationEnvironment } from '../constant/application';
+import { Config } from '../types/types';
 import { isApplicationEnvironment } from '../util/envUtil';
-
-interface Config {
-    PORT: number;
-    ENV: applicationEnvironment;
-    SERVER_URL: string;
-}
 
 const envValue = process.env.ENV || 'development';
 
@@ -15,6 +10,7 @@ const config: Config = {
     PORT: Number(process.env.PORT) || 3001,
     ENV: env,
     SERVER_URL: process.env.SERVER_URL || 'http://localhost',
+    LOG_LEVEL: process.env.LOG_LEVEL || 'info',
 };
 
 export default config;
