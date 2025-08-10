@@ -2,6 +2,7 @@ import { HttpResponse } from '../types/types';
 import config from '../config/config';
 import { applicationEnvironment } from '../constant/application';
 import { Request } from 'express';
+import logger from './logger';
 
 export default (
     req: Request,
@@ -22,7 +23,7 @@ export default (
     };
 
     // log the response for debugging purposes
-    console.info(`CONTROLLER_RESPONSE`, {
+    logger.info(`CONTROLLER_RESPONSE`, {
         meta: responseObject,
     });
 

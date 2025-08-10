@@ -3,6 +3,7 @@ import { Request } from 'express';
 import responseMessage from '../constant/responseMessage';
 import { applicationEnvironment } from '../constant/application';
 import config from '../config/config';
+import logger from './logger';
 
 export default (err: unknown, req: Request, errorStatusCode: number = 500): HttpError => {
     const isError = err instanceof Error;
@@ -19,7 +20,7 @@ export default (err: unknown, req: Request, errorStatusCode: number = 500): Http
         trace: isError ? { error: err.stack } : null,
     };
 
-    console.error(`CONTROLLER_ERROR`, {
+    logger.error(`CONTROLLER_ERROR`, {
         meta: errorObject,
     });
 
