@@ -30,4 +30,5 @@ export interface Config {
     ENV: applicationEnvironment;
     SERVER_URL: string;
     LOG_LEVEL: string;
+    DB_URL: string;
 }

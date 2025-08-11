@@ -1,29 +1,52 @@
 import app from './app';
 import config from './config/config';
+import databaseService from './service/databaseService';
 import logger from './util/logger';
 
 const port = config.PORT;
 const host = config.SERVER_URL;
 const environment = config.ENV;
 
-const server = app.listen(port, () => {
-    logger.info('APPLICATION_STARTED', {
-        meta: {
-            url: `${host}:${port}`,
-            environment,
-        },
-    });
-});
+async function startServer() {
+    try {
+        const connection = await databaseService.connect();
 
-server.emit('error', new Error('Simulated server error'));
+        logger.info('DATABASE_CONNECTION', {
+            meta: {
+                CONNECTION_NAME: connection.name,
+            },
+        });
 
-server.on('error', (err) => {
-    logger.error('APPLICATION_ERROR', { meta: err });
-    server.close((error) => {
-        logger.error('Server closed due to error:', error);
-        if (error) {
-            logger.error('APPLICATION_ERROR', { meta: error });
-        }
+        const server = app.listen(port, () => {
+            logger.info('APPLICATION_STARTED', {
+                meta: {
+                    url: `${host}:${port}`,
+                    environment,
+                },
+            });
+        });
+
+        server.on('error', (error) => {
+            logger.error('SERVER_ERROR', { meta: error });
+            process.exit(1);
+        });
+
+        process.on('SIGINT', () => {
+            logger.info('SIGINT received, closing server...', {
+                meta: {
+                    signal: 'SIGINT',
+                },
+            });
+            server.close(() => {
+                logger.info('Server closed', { meta: { uptime: process.uptime() } });
+                process.exit(0);
+            });
+        });
+    } catch (error) {
+        logger.error('APPLICATION_ERROR', { meta: error });
+
         process.exit(1);
-    });
-});
+    }
+}
+
+void startServer();

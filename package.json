@@ -33,6 +33,7 @@
   "dependencies": {
     "colorette": "^2.0.20",
     "express": "^5.1.0",
+    "mongoose": "^8.17.1",
     "winston": "^3.17.0"
   }
 }
