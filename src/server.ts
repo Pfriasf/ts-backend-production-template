@@ -15,9 +15,6 @@ const server = app.listen(port, () => {
     });
 });
 
-// Justo después de crear el servidor
-// wait dela respuesta del servidor antes de emitir el error
-
 server.emit('error', new Error('Simulated server error'));
 
 server.on('error', (err) => {
