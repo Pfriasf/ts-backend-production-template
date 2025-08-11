@@ -2,6 +2,8 @@ import { createLogger, format, transports } from 'winston';
 import config from '../config/config';
 import path from 'path';
 import fs from 'fs';
+import { colorizeLevel } from './colorUtil';
+import { gray, magenta } from 'colorette';
 
 const logsDir = path.join(__dirname, '../', '../', 'logs');
 if (!fs.existsSync(logsDir)) {
@@ -12,9 +14,11 @@ const consoleLogFormat = format.printf(({ level, message, timestamp, metadata })
     const metaObj =
         (metadata as Record<string, unknown>)?.meta ?? (metadata as Record<string, unknown>);
     const metaString =
-        metaObj && Object.keys(metaObj).length ? `\nMETA: ${JSON.stringify(metaObj, null, 4)}` : '';
+        metaObj && Object.keys(metaObj).length
+            ? `\n${magenta('META:')} ${JSON.stringify(metaObj, null, 4)}`
+            : '';
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    return `${level.toUpperCase()} [${timestamp}] : ${message}${metaString}`;
+    return `${colorizeLevel(level)} [${gray(String(timestamp))}] : ${message}${metaString}`;
 });
 
 const consoleTransport = (): Array<transports.ConsoleTransportInstance> => {
