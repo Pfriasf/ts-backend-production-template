@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { colorizeLevel } from './colorUtil';
 import { gray, magenta } from 'colorette';
+import { MongoDB, MongoDBTransportInstance } from 'winston-mongodb';
 
 const logsDir = path.join(__dirname, '../', '../', 'logs');
 if (!fs.existsSync(logsDir)) {
@@ -61,7 +62,21 @@ const fileTransport = (): Array<transports.FileTransportInstance> => {
     ];
 };
 
+const mongoDBTransport = (): Array<MongoDBTransportInstance> => {
+    return [
+        new MongoDB({
+            level: config.LOG_LEVEL,
+            db: config.DB_URL,
+            collection: 'application_logs',
+            expireAfterSeconds: 3600 * 24 * 30, // 30 days
+            metaKey: 'meta',
+            storeHost: true,
+            tryReconnect: true,
+        }),
+    ];
+};
+
 export default createLogger({
     defaultMeta: {},
-    transports: [...consoleTransport(), ...fileTransport()],
+    transports: [...consoleTransport(), ...mongoDBTransport(), ...fileTransport()],
 });
