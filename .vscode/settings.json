@@ -12,6 +12,7 @@
         "controller",
         "middleware",
         "vscode",
-        "logging"
+        "logging",
+        "database"
     ]
 }
