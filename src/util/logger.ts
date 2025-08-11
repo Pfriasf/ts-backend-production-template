@@ -22,7 +22,6 @@ const consoleTransport = (): Array<transports.ConsoleTransportInstance> => {
         new transports.Console({
             level: config.LOG_LEVEL,
             format: format.combine(
-                format.colorize({ all: true }),
                 format.timestamp(),
                 format.errors({ stack: true }),
                 format.metadata({ fillExcept: ['message', 'level', 'timestamp'] }),
@@ -50,7 +49,6 @@ const fileTransport = (): Array<transports.FileTransportInstance> => {
             level: config.LOG_LEVEL,
             format: format.combine(
                 format.timestamp(),
-                format.colorize({ level: true }),
                 format.errors({ stack: true }),
                 format.metadata({ fillExcept: ['message', 'level', 'timestamp'] }),
                 fileLogFormat,
