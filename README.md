@@ -8,6 +8,7 @@ Includes best practices for code quality, error handling, logging, and developer
 ## 📦 Features
 
 - TypeScript with strict settings and type-checked ESLint (typescript-eslint recommendedTypeChecked).
+- Source maps enabled for easier debugging.
 - Express 5 with modular routing and middlewares.
 - Centralized error handling and consistent HTTP responses.
 - Not Found (404) and Method Not Allowed (405) helpers.
@@ -16,7 +17,7 @@ Includes best practices for code quality, error handling, logging, and developer
 - ESLint + Prettier integration.
 - Husky + lint-staged + Commitlint ready for conventional commits.
 - Nodemon for hot reload in development.
-- Environment variables via .env files.
+- Environment variables via `.env` files using Node.js native support (`--env-file` flag, no extra packages needed).
 
 ---
 
@@ -61,7 +62,13 @@ api/
 Copy the example and adjust values:
 
 ```bash
-cp .env.example .env
+```bash
+# For development environment
+cp .env.example .env.development
+
+# For production environment
+cp .env.example .env.production
+```
 ```
 
 Example variables (from .env.example):
@@ -73,8 +80,8 @@ LOG_LEVEL=info
 ```
 
 Notes:
-- npm start uses: node --env-file=.env.production dist/server.js
-- For production, create a .env.production file.
+- For production, create a `.env.production` file.
+- For development, create a `.env.development` file and use `npm run dev` .
 
 ---
 
