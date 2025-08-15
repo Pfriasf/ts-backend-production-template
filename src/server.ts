@@ -38,13 +38,12 @@ async function startServer() {
                 },
             });
             server.close(() => {
-                logger.info('Server closed', { meta: { uptime: process.uptime() } });
+                logger.info('SERVER_ERROR', { meta: { uptime: process.uptime() } });
                 process.exit(0);
             });
         });
     } catch (error) {
         logger.error('APPLICATION_ERROR', { meta: error });
-
         process.exit(1);
     }
 }

@@ -8,7 +8,9 @@
     "dev": "nodemon",
     "prepare": "husky",
     "format:check": "prettier . --check",
-    "format:fix": "prettier . --write"
+    "format:fix": "prettier . --write",
+    "migrate:dev": "MIGRATE_MODE=development npx migrate",
+    "migrate:prod": "MIGRATE_MODE=production npx migrate"
   },
   "author": "Pedro Frias",
   "license": "ISC",
