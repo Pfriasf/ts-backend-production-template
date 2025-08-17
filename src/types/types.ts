@@ -32,3 +32,15 @@ export interface Config {
     LOG_LEVEL: string;
     DB_URL: string;
 }
+
+export interface CpuLoad {
+    last1Minute: string;
+    last5Minutes: string;
+    last15Minutes: string;
+}
+
+export interface SystemHealth {
+    cpuLoad: CpuLoad;
+    totalMemory: string;
+    freeMemory: string;
+}
