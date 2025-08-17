@@ -2,8 +2,12 @@ import express, { Application } from 'express';
 import router from './router/apiRouter';
 import globalErrorHandler from './middleware/globalErrorHandler';
 import notFoundError from './util/notFoundError';
+import helmet from 'helmet';
 
 const app: Application = express();
+
+// Security middleware
+app.use(helmet());
 
 // Middleware to parse JSON bodies
 app.use(express.json());
