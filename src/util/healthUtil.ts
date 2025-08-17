@@ -1,6 +1,6 @@
 import os from 'os';
 import config from '../config/config';
-import { SystemHealth } from '../types/types';
+import { ApplicationHealth, SystemHealth } from '../types/types';
 
 export default {
     getSystemHealth: (): SystemHealth => {
@@ -19,7 +19,7 @@ export default {
             freeMemory: `${(os.freemem() / 1024 / 1024).toFixed(2)} MB`,
         };
     },
-    getApplicationHealth: () => {
+    getApplicationHealth: (): ApplicationHealth => {
         return {
             environment: config.ENV,
             uptime: `${process.uptime().toFixed(2)} Seconds`,

@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import httpResponse from '../util/httpResponse';
 import responseMessage from '../constant/responseMessage';
 import httpError from '../util/httpError';
-import quicker from '../util/quicker';
+import quicker from '../util/healthUtil';
 
 export default {
     self: (req: Request, res: Response, next: NextFunction) => {

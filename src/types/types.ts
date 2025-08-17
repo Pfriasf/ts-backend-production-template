@@ -44,3 +44,13 @@ export interface SystemHealth {
     totalMemory: string;
     freeMemory: string;
 }
+
+export interface ApplicationHealth {
+    environment: applicationEnvironment;
+    uptime: string;
+    memoryUsage: {
+        rss: string;
+        heapTotal: string;
+        heapUsed: string;
+    };
+}
