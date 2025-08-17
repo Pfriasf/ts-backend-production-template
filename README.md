@@ -17,6 +17,8 @@ Includes best practices for code quality, error handling, logging, and developer
 - ESLint + Prettier integration.
 - Husky + lint-staged + Commitlint ready for conventional commits.
 - Nodemon for hot reload in development.
+- Health endpoint 
+- Database migration support 
 - Environment variables via `.env` files using Node.js native support (`--env-file` flag, no extra packages needed).
 
 ---
