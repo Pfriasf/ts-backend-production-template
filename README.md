@@ -19,6 +19,7 @@ Includes best practices for code quality, error handling, logging, and developer
 - Nodemon for hot reload in development.
 - Health endpoint 
 - Database migration support 
+- Enabled Helmet to enhance API security with HTTP headers.
 - Environment variables via `.env` files using Node.js native support (`--env-file` flag, no extra packages needed).
 
 ---
@@ -36,12 +37,16 @@ api/
     middleware/
       globalErrorHandler.ts    # Global error handler (final middleware)
     util/
-      httpResponse.ts          # Standard success response helper
+      colorUtil.ts             # Color utilities for log levels (console)
+      envUtil.ts               # Environment validation helpers (type guards)
+      healthUtil.ts            # Gathers system & application health metrics
+      logger.ts                # Winston logger (referenced by errorObject)
       httpError.ts             # Helper to build/pass HttpError via next()
       errorObject.ts           # Builds the HttpError object (privacy-aware)
+      httpResponse.ts          # Standard success response helper
+      responseObject.ts        # Builds the HttpResponse object (logs + prod privacy)
       notFoundError.ts         # Route/entity 404 helpers
       methodNotAllowedError.ts # 405 helper for route.all()
-      logger.ts                # Winston logger (referenced by errorObject)
     constant/
       responseMessage.ts       # Centralized response messages
       application.ts           # Application constants (e.g. environment)
