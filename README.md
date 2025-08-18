@@ -21,6 +21,7 @@ Includes best practices for code quality, error handling, logging, and developer
 - Database migration support 
 - Enabled Helmet to enhance API security with HTTP headers.
 - CORS configuration with whitelisted origins, methods, and credentials.
+- Rate limiting: Per-IP middleware with configurable limits, backed by MongoDB datastore.
 - Environment variables via `.env` files using Node.js native support (`--env-file` flag, no extra packages needed).
 
 ---
