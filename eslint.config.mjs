@@ -5,29 +5,42 @@ import { defineConfig } from 'eslint/config';
 import eslintConfigPrettier from 'eslint-config-prettier';
 
 export default defineConfig([
-  {
-    files: ['**/*.{js,mjs,cjs,ts,mts,cts}'],
-    ignores: [
-      'node_modules', 'tests', 'dist', 'build', 'coverage',
-      'out', 'public', 'tmp', 'temp', 'eslint.config.mjs'
-    ],
-    languageOptions: {
-      globals: globals.node,
-      parserOptions: {
-        project: './tsconfig.json',
-        tsconfigRootDir: import.meta.dirname,
-      }
+    {
+        ignores: [
+            'node_modules/**',
+            'test/**',
+            'dist/**',
+            'build/**',
+            'coverage/**',
+            'out/**',
+            'public/**',
+            'tmp/**',
+            'temp/**',
+        ],
     },
-    extends: [
-      js.configs.recommended,
-      ...tseslint.configs.recommendedTypeChecked,
-      eslintConfigPrettier,
-    ],
+    {
+        files: ['**/*.{js,mjs,cjs}'],
+        extends: [js.configs.recommended, eslintConfigPrettier],
+        languageOptions: {
+            globals: globals.node,
+        },
+    },
+    {
+        files: ['**/*.{ts,mts,cts}'],
+        extends: [
+            js.configs.recommended,
+            ...tseslint.configs.recommendedTypeChecked,
+            eslintConfigPrettier,
+        ],
+        languageOptions: {
+            globals: globals.node,
+            parserOptions: {
+                project: './tsconfig.json',
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
         rules: {
-      '@typescript-eslint/no-unused-vars': [
-        'error',
-        { argsIgnorePattern: '^_' } 
-      ]
-    }
-  },
+            '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+        },
+    },
 ]);

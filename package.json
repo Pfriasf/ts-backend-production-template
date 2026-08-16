@@ -1,47 +1,50 @@
 {
-  "name": "ts-backend-production-template",
-  "version": "1.0.0",
-  "main": "src/server.js",
-  "scripts": {
-    "build": "npx tsc",
-    "start": "node --env-file=.env.production dist/server.js --enable-source-maps",
-    "dev": "nodemon",
-    "prepare": "husky",
-    "format:check": "prettier . --check",
-    "format:fix": "prettier . --write",
-    "migrate:dev": "MIGRATE_MODE=development npx migrate",
-    "migrate:prod": "MIGRATE_MODE=production npx migrate"
-  },
-  "author": "Pedro Frias",
-  "license": "ISC",
-  "description": "",
-  "devDependencies": {
-    "@commitlint/cli": "^19.8.0",
-    "@commitlint/config-conventional": "^19.8.0",
-    "@eslint/js": "^9.32.0",
-    "@tsconfig/node22": "^22.0.1",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.3",
-    "@types/node": "^22.14.1",
-    "eslint": "^9.32.0",
-    "eslint-config-prettier": "^10.1.5",
-    "globals": "^16.3.0",
-    "husky": "^9.1.7",
-    "lint-staged": "^15.5.0",
-    "nodemon": "^3.1.9",
-    "prettier": "3.6.2",
-    "typescript": "^5.8.3",
-    "typescript-eslint": "^8.39.0"
-  },
-  "dependencies": {
-    "colorette": "^2.0.20",
-    "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "helmet": "^8.1.0",
-    "mongoose": "^8.17.1",
-    "rate-limiter-flexible": "^7.2.0",
-    "ts-migrate-mongoose": "^4.0.9",
-    "winston": "^3.17.0",
-    "winston-mongodb": "^7.0.0"
-  }
+    "name": "ts-backend-production-template",
+    "version": "1.0.0",
+    "engines": {
+        "node": ">=24 <25"
+    },
+    "main": "src/server.js",
+    "scripts": {
+        "build": "npx tsc",
+        "start": "node --env-file=.env.production dist/server.js --enable-source-maps",
+        "dev": "nodemon",
+        "prepare": "husky",
+        "format:check": "prettier . --check",
+        "format:fix": "prettier . --write",
+        "migrate:dev": "MIGRATE_MODE=development npx migrate up",
+        "migrate:prod": "MIGRATE_MODE=production npx migrate up"
+    },
+    "author": "Pedro Frias",
+    "license": "ISC",
+    "description": "",
+    "devDependencies": {
+        "@commitlint/cli": "^21.2.2",
+        "@commitlint/config-conventional": "^21.2.2",
+        "@eslint/js": "^9.32.0",
+        "@tsconfig/node24": "^24.0.5",
+        "@types/cors": "^2.8.19",
+        "@types/express": "^5.0.3",
+        "@types/node": "^24.13.3",
+        "eslint": "^9.32.0",
+        "eslint-config-prettier": "^10.1.5",
+        "globals": "^16.3.0",
+        "husky": "^9.1.7",
+        "lint-staged": "^15.5.0",
+        "nodemon": "^3.1.9",
+        "prettier": "^3.9.6",
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.39.0"
+    },
+    "dependencies": {
+        "colorette": "^2.0.20",
+        "cors": "^2.8.5",
+        "express": "^5.1.0",
+        "helmet": "^8.1.0",
+        "mongoose": "^9.9.2",
+        "rate-limiter-flexible": "^7.2.0",
+        "ts-migrate-mongoose": "^5.3.3",
+        "winston": "^3.17.0",
+        "winston-mongodb": "^7.0.0"
+    }
 }

@@ -17,8 +17,8 @@ Includes best practices for code quality, error handling, logging, and developer
 - ESLint + Prettier integration.
 - Husky + lint-staged + Commitlint ready for conventional commits.
 - Nodemon for hot reload in development.
-- Health endpoint 
-- Database migration support 
+- Health endpoint
+- Database migration support
 - Enabled Helmet to enhance API security with HTTP headers.
 - CORS configuration with whitelisted origins, methods, and credentials.
 - Rate limiting: Per-IP middleware with configurable limits, backed by MongoDB datastore.
@@ -28,6 +28,7 @@ Includes best practices for code quality, error handling, logging, and developer
 ---
 
 ## 🗂️ Project Structure
+
 ```
 api/
   src/
@@ -66,28 +67,30 @@ api/
 
 ---
 
-
 ## ⚙️ Environment Variables
 
 Copy the example and adjust values:
 
-```bash
+````bash
 ```bash
 # For development environment
 cp .env.example .env.development
 
 # For production environment
 cp .env.example .env.production
-```
+````
+
 ```
 
 Example variables (from .env.example):
 ```
+
 PORT=3003
 SERVER_URL=http://localhost
 ENV=development
 LOG_LEVEL=info
-```
+
+````
 
 Notes:
 - For production, create a `.env.production` file.
@@ -100,27 +103,32 @@ Notes:
 Install dependencies:
 ```bash
 npm install
-```
+````
 
 Run in development (hot reload with Nodemon):
+
 ```bash
 npm run dev
 ```
 
 Build TypeScript to dist/:
+
 ```bash
 npm run build
 ```
 
 Run in production (requires .env.production):
+
 ```bash
 npm start
 ```
 
 ---
+
 ## Migrations (MongoDB + Mongoose)
 
 The migration system lets you:
+
 - Create structures or indexes
 - Seed initial data
 - Revert applied changes (down)
@@ -136,6 +144,7 @@ The migration system lets you:
 If mode is set, it will look for .env.[mode] file in the root of your project
 For example, if MIGRATE_MODE=development it will look for .env.development file
 If mode is not set, it will look for .env file in the root of your project
+
 ```text
 
 .env                # loaded in all cases
@@ -146,72 +155,79 @@ If mode is not set, it will look for .env file in the root of your project
 
 ### Core commands
 
-1. Create a new migration  
-   ```bash
-   npm run migrate:dev create seed-users
-   ```
-   This generates a file like:  
-   `migrations/<timestamp>-seed-users.ts`  
-   Example: `migrations/20240101121530-seed-users.ts`
+1. Create a new migration
+
+    ```bash
+    npm run migrate:dev create seed-users
+    ```
+
+    This generates a file like:  
+    `migrations/<timestamp>-seed-users.ts`  
+    Example: `migrations/20240101121530-seed-users.ts`
 
 2. Edit the migration (seed example)
-   ```typescript
-   // migrations/<timestamp>-seed-users.ts
-   import databaseService from '../src/service/databaseService';
-   import { UserModel } from '../src/model/user.model';
 
-   const seedUsers = [
-     { email: 'john@example.com', favouriteSport: 'surf', yearOfBirth: 1997 },
-     { email: 'alice@example.com', favouriteSport: 'soccer', yearOfBirth: 1998 },
-   ];
+    ```typescript
+    // migrations/<timestamp>-seed-users.ts
+    import databaseService from '../src/service/databaseService';
+    import { UserModel } from '../src/model/user.model';
 
-   export async function up(): Promise<void> {
-     await databaseService.connect();
-     await UserModel.create(seedUsers);
-   }
+    const seedUsers = [
+        { email: 'john@example.com', favouriteSport: 'surf', yearOfBirth: 1997 },
+        { email: 'alice@example.com', favouriteSport: 'soccer', yearOfBirth: 1998 },
+    ];
 
-   export async function down(): Promise<void> {
-     await databaseService.connect();
-     await UserModel.deleteMany({
-       email: { $in: seedUsers.map(u => u.email) },
-     });
-   }
-   ```
+    export async function up(): Promise<void> {
+        await databaseService.connect();
+        await UserModel.create(seedUsers);
+    }
 
-3. Apply (run) migrations  
-   ```bash
-   # Run all pending
-   npm run migrate:dev up
+    export async function down(): Promise<void> {
+        await databaseService.connect();
+        await UserModel.deleteMany({
+            email: { $in: seedUsers.map((u) => u.email) },
+        });
+    }
+    ```
 
-   # Run only one (match suffix after timestamp)
-   npm run migrate:dev up seed-users
-   ```
+3. Apply (run) migrations
 
-4. Revert migrations  
-   ```bash
-   # Revert last applied
-   npm run migrate:dev down
+    ```bash
+    # Run all pending
+    npm run migrate:dev up
 
-   # Revert a specific one
-   npm run migrate:dev down seed-users
-   ```
+    # Run only one (match suffix after timestamp)
+    npm run migrate:dev up seed-users
+    ```
+
+4. Revert migrations
+    ```bash
+    # Revert last applied
+    npm run migrate:dev down
+
+    # Revert a specific one
+    npm run migrate:dev down seed-users
+    ```
 
 ### Additional commands
 
 - List status:
-  ```bash
-  npm run migrate:dev list
-  ```
-  Shows applied (up) and pending (down) migrations.
+
+    ```bash
+    npm run migrate:dev list
+    ```
+
+    Shows applied (up) and pending (down) migrations.
 
 - Delete extraneous migrations from migration folder or database:
-  ```bash
-  npm run migrate:dev prune
-  ```
+    ```bash
+    npm run migrate:dev prune
+    ```
 
 ### Production usage
 
 Replace `migrate:dev` with `migrate:prod`:
+
 ```bash
 npm run migrate:prod up
 npm run migrate:prod down
@@ -220,6 +236,7 @@ npm run migrate:prod prune
 ```
 
 Ensure:
+
 - Correct env vars (`DB_URL`, `ENV=production`)
 
 ### Recommendations
@@ -229,7 +246,6 @@ Ensure:
 - Never edit an applied production migration: create a new one
 
 ---
-
 
 ## 🧭 Conventions
 
