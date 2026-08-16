@@ -12,8 +12,7 @@ if (!fs.existsSync(logsDir)) {
 }
 
 const consoleLogFormat = format.printf(({ level, message, timestamp, metadata }) => {
-    const metaObj =
-        (metadata as Record<string, unknown>)?.meta ?? (metadata as Record<string, unknown>);
+    const metaObj = (metadata as Record<string, unknown>)?.meta ?? metadata;
     const metaString =
         metaObj && Object.keys(metaObj).length
             ? `\n${magenta('META:')} ${JSON.stringify(metaObj, null, 4)}`
