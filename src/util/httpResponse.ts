@@ -1,5 +1,12 @@
 import { Request, Response } from 'express';
-import responseObject from './responseObject';
+import config from '../config/config';
+import logger from './logger';
+import { createResponseObject } from './responseObject';
+
+const responseObject = createResponseObject({
+    getEnvironment: () => config.ENV,
+    logInfo: (message, metadata) => logger.info(message, metadata),
+});
 
 export default (
     req: Request,

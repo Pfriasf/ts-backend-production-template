@@ -1,5 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
-import errorObject from './errorObject';
+import config from '../config/config';
+import logger from './logger';
+import { createErrorObject } from './errorObject';
+
+const errorObject = createErrorObject({
+    getEnvironment: () => config.ENV,
+    logError: (message, metadata) => logger.error(message, metadata),
+});
 
 export default (
     err: unknown,
