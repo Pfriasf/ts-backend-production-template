@@ -8,7 +8,6 @@ export default defineConfig([
     {
         ignores: [
             'node_modules/**',
-            'test/**',
             'dist/**',
             'build/**',
             'coverage/**',
