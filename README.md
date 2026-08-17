@@ -89,6 +89,8 @@ PORT=3003
 SERVER_URL=http://localhost
 ENV=development
 LOG_LEVEL=info
+RATE_LIMIT_POINTS=10
+RATE_LIMIT_DURATION=60
 
 ````
 

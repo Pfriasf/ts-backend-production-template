@@ -48,6 +48,8 @@ export interface Config {
     SERVER_URL: string;
     LOG_LEVEL: string;
     DB_URL: string;
+    RATE_LIMIT_POINTS: number;
+    RATE_LIMIT_DURATION: number;
 }
 
 export interface CpuLoad {
