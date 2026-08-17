@@ -1,23 +1,18 @@
 import { Connection } from 'mongoose';
 import { RateLimiterMongo } from 'rate-limiter-flexible';
-
-let rateLimiterMongo: RateLimiterMongo | undefined;
+import { createRateLimiterStore } from './rateLimiterStore';
 
 const DURATION = 60;
 const POINTS = 10;
 
-export const initRateLimiter = (mongooseConnection: Connection) => {
-    rateLimiterMongo = new RateLimiterMongo({
-        storeClient: mongooseConnection,
-        points: POINTS,
-        duration: DURATION,
-    });
-};
+const rateLimiterStore = createRateLimiterStore(
+    (mongooseConnection: Connection) =>
+        new RateLimiterMongo({
+            storeClient: mongooseConnection,
+            points: POINTS,
+            duration: DURATION,
+        }),
+);
 
-export const getRateLimiter = (): RateLimiterMongo => {
-    if (!rateLimiterMongo) {
-        throw new Error('Rate limiter has not been initialized.');
-    }
-
-    return rateLimiterMongo;
-};
+export const initRateLimiter = rateLimiterStore.init;
+export const getRateLimiter = rateLimiterStore.get;
