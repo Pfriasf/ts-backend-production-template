@@ -37,7 +37,7 @@ api/
     router/
       apiRouter.ts             # API routes (/api)
     controller/
-      apiController.ts         # Example controller (GET /api/self)
+      apiController.ts         # Example controller (GET /api)
     middleware/
       globalErrorHandler.ts    # Global error handler (final middleware)
     util/

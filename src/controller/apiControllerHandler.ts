@@ -7,12 +7,12 @@ type ApiControllerDependencies = {
     handleError: HandleError;
 };
 
-export const createApiController = (dependencies: ApiControllerDependencies) => ({
-    self: (req: Request, res: Response, next: NextFunction): void => {
+export const createApiController = (dependencies: ApiControllerDependencies) => {
+    return (req: Request, res: Response, next: NextFunction): void => {
         try {
             dependencies.sendResponse(req, res, 200, responseMessage.SUCCESS);
         } catch (error) {
             dependencies.handleError(error, req, res, next, 500);
         }
-    },
-});
+    };
+};

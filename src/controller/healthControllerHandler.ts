@@ -11,7 +11,7 @@ type HealthControllerDependencies = {
 };
 
 export const createHealthController = (dependencies: HealthControllerDependencies) => ({
-    get: (req: Request, res: Response, next: NextFunction): void => {
+    status: (req: Request, res: Response, next: NextFunction): void => {
         try {
             const healthData = {
                 application: dependencies.getApplicationHealth(),

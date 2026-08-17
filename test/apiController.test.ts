@@ -5,10 +5,10 @@ import { createApiController } from '../src/controller/apiControllerHandler';
 import responseMessage from '../src/constant/responseMessage';
 
 void describe('createApiController', () => {
-    void it('sends a successful self response', () => {
+    void it('sends a successful API root response', () => {
         const sendResponse = mock.fn();
         const handleError = mock.fn();
-        const controller = createApiController({
+        const apiController = createApiController({
             sendResponse,
             handleError,
         });
@@ -16,7 +16,7 @@ void describe('createApiController', () => {
         const res = {} as Response;
         const next = mock.fn<NextFunction>();
 
-        controller.self(req, res, next);
+        apiController(req, res, next);
 
         assert.deepEqual(sendResponse.mock.calls[0]?.arguments, [
             req,

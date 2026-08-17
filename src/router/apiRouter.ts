@@ -8,8 +8,8 @@ const router = Router();
 
 router.use(rateLimit);
 
-router.route('/self').get(apiController.self).all(methodNotAllowed);
+router.route('/').get(apiController).all(methodNotAllowed);
 
-router.route('/health').get(healthController.get).all(methodNotAllowed);
+router.route('/health').get(healthController.status).all(methodNotAllowed);
 
 export default router;
