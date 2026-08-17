@@ -1,4 +1,21 @@
 import { applicationEnvironment } from '../constant/application';
+import type { NextFunction, Request, Response } from 'express';
+
+export type SendResponse = (
+    req: Request,
+    res: Response,
+    statusCode: number,
+    message: string,
+    data?: unknown,
+) => void;
+
+export type HandleError = (
+    error: unknown,
+    req: Request,
+    res: Response,
+    next: NextFunction,
+    statusCode?: number,
+) => void;
 
 export type HttpResponse = {
     success: boolean;

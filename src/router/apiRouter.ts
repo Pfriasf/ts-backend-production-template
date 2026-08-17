@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import apiController from '../controller/apiController';
+import healthController from '../controller/healthController';
 import methodNotAllowed from '../util/methodNotAllowedError';
 import rateLimit from '../middleware/rateLimit';
 
@@ -9,6 +10,6 @@ router.use(rateLimit);
 
 router.route('/self').get(apiController.self).all(methodNotAllowed);
 
-router.route('/health').get(apiController.health).all(methodNotAllowed);
+router.route('/health').get(healthController.get).all(methodNotAllowed);
 
 export default router;
