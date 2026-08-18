@@ -9,7 +9,7 @@
         "clean": "node script/clean.js",
         "build": "npm run clean && npx tsc",
         "test": "npm run build && node --test dist/test/*.test.js",
-        "test:coverage": "npm run build && c8 --all --include='dist/src/**/*.js' --exclude='dist/src/types/**/*.js' node --test dist/test/*.test.js",
+        "test:coverage": "npm run build && c8 --all --include='dist/src/**/*.js' --exclude='dist/src/types/**/*.js' --check-coverage --lines=80 --branches=75 --functions=80 node --test dist/test/*.test.js",
         "start": "node --env-file=.env.production dist/server.js --enable-source-maps",
         "dev": "nodemon",
         "prepare": "husky",

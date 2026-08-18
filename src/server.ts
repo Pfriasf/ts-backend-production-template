@@ -5,7 +5,7 @@ import databaseService from './service/databaseService';
 import logger from './util/logger';
 
 const port = config.PORT;
-const host = config.SERVER_URL;
+const serverUrl = config.SERVER_URL;
 const environment = config.ENV;
 
 async function startServer() {
@@ -25,7 +25,7 @@ async function startServer() {
         const server = app.listen(port, () => {
             logger.info('APPLICATION_STARTED', {
                 meta: {
-                    url: `${host}:${port}`,
+                    url: `${serverUrl}:${port}`,
                     environment,
                 },
             });
@@ -43,7 +43,7 @@ async function startServer() {
                 },
             });
             server.close(() => {
-                logger.info('SERVER_ERROR', { meta: { uptime: process.uptime() } });
+                logger.info('APPLICATION_STOPPED', { meta: { uptime: process.uptime() } });
                 process.exit(0);
             });
         });
