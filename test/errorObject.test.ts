@@ -45,6 +45,21 @@ describe('errorObject', () => {
         expect(result.message).toBe(responseMessage.SOMETHING_WENT_WRONG);
     });
 
+    it('uses null when the request IP is unavailable', () => {
+        const requestWithoutIp = {
+            method: 'GET',
+            originalUrl: '/api/resource',
+        } as Request;
+
+        const result = errorObject(
+            new Error('Failure'),
+            requestWithoutIp,
+            applicationEnvironment.STAGING,
+        );
+
+        expect(result.request.ip).toBeNull();
+    });
+
     it('removes the request IP and trace from production errors', () => {
         const result = errorObject(
             new Error('Failure'),
