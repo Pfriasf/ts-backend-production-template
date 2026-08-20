@@ -1,33 +1,55 @@
-import { describe, it, mock } from 'node:test';
-import assert from 'node:assert/strict';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Request, Response } from 'express';
+import { applicationEnvironment } from '../src/constant/application';
 import type { HttpResponse } from '../src/types/types';
-import { createHttpResponse } from '../src/util/httpResponseHandler';
+import type responseObject from '../src/util/responseObject';
 
-void describe('createHttpResponse', () => {
-    void it('sends the built response with its status code', () => {
-        const responseObject: HttpResponse = {
+const mocks = vi.hoisted(() => ({
+    responseObject: vi.fn<typeof responseObject>(),
+    logInfo: vi.fn(),
+}));
+
+vi.mock('../src/config/config', () => ({
+    default: { ENV: applicationEnvironment.DEVELOPMENT },
+}));
+vi.mock('../src/util/responseObject', () => ({ default: mocks.responseObject }));
+vi.mock('../src/util/logger', () => ({
+    default: { info: mocks.logInfo },
+}));
+
+import httpResponse from '../src/util/httpResponse';
+
+describe('httpResponse', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    it('builds, logs and sends the response', () => {
+        const response: HttpResponse = {
             success: true,
             statusCode: 201,
-            request: {
-                method: 'POST',
-                url: '/api/resource',
-            },
+            request: { method: 'POST', url: '/resource' },
             message: 'Created',
             data: { id: '123' },
         };
-        const buildResponse = mock.fn(() => responseObject);
-        const json = mock.fn();
-        const status = mock.fn(() => ({ json }) as unknown as Response);
-        const httpResponse = createHttpResponse(buildResponse);
+        mocks.responseObject.mockReturnValue(response);
+        const json = vi.fn();
+        const status = vi.fn(() => ({ json }) as unknown as Response);
         const req = {} as Request;
         const res = { status } as unknown as Response;
         const data = { id: '123' };
 
         httpResponse(req, res, 201, 'Created', data);
 
-        assert.deepEqual(buildResponse.mock.calls[0]?.arguments, [req, 201, 'Created', data]);
-        assert.deepEqual(status.mock.calls[0]?.arguments, [201]);
-        assert.deepEqual(json.mock.calls[0]?.arguments, [responseObject]);
+        expect(mocks.responseObject).toHaveBeenCalledWith(
+            req,
+            201,
+            'Created',
+            applicationEnvironment.DEVELOPMENT,
+            data,
+        );
+        expect(mocks.logInfo).toHaveBeenCalledWith('CONTROLLER_RESPONSE', { meta: response });
+        expect(status).toHaveBeenCalledWith(201);
+        expect(json).toHaveBeenCalledWith(response);
     });
 });

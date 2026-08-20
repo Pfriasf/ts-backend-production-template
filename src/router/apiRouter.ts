@@ -10,6 +10,6 @@ router.use(rateLimit);
 
 router.route('/').get(apiController).all(methodNotAllowed);
 
-router.route('/health').get(healthController.status).all(methodNotAllowed);
+router.route('/health').get(healthController).all(methodNotAllowed);
 
 export default router;

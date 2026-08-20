@@ -1,11 +1,16 @@
+import type { Request, Response } from 'express';
 import config from '../config/config';
 import logger from './logger';
-import { createHttpResponse } from './httpResponseHandler';
-import { createResponseObject } from './responseObject';
+import responseObject from './responseObject';
 
-const responseObject = createResponseObject({
-    getEnvironment: () => config.ENV,
-    logInfo: (message, metadata) => logger.info(message, metadata),
-});
-
-export default createHttpResponse(responseObject);
+export default (
+    req: Request,
+    res: Response,
+    responseStatusCode: number,
+    responseMessage: string,
+    data: unknown = null,
+): void => {
+    const response = responseObject(req, responseStatusCode, responseMessage, config.ENV, data);
+    logger.info('CONTROLLER_RESPONSE', { meta: response });
+    res.status(response.statusCode).json(response);
+};

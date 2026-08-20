@@ -1,34 +1,33 @@
-import { describe, it, mock } from 'node:test';
-import assert from 'node:assert/strict';
+import { describe, expect, it, vi } from 'vitest';
 import type { NextFunction, Request, Response } from 'express';
 import { applicationEnvironment } from '../src/constant/application';
 import { createRateLimitMiddleware } from '../src/middleware/rateLimitMiddleware';
 
-void describe('createRateLimitMiddleware', () => {
-    void it('calls next once in development', async () => {
-        const getRateLimiter = mock.fn(() => {
+describe('createRateLimitMiddleware', () => {
+    it('calls next once in development', async () => {
+        const getRateLimiter = vi.fn(() => {
             throw new Error('getRateLimiter should not be called');
         });
-        const handleError = mock.fn();
-        const next = mock.fn<NextFunction>();
+        const handleError = vi.fn();
+        const next = vi.fn<NextFunction>();
         const middleware = createRateLimitMiddleware({
             getEnvironment: () => applicationEnvironment.DEVELOPMENT,
             getRateLimiter,
             handleError,
         });
 
-        await middleware({} as Request, {} as Response, next);
+        await middleware({} as Request, {} as Response, next as unknown as NextFunction);
 
-        assert.equal(next.mock.callCount(), 1);
-        assert.equal(getRateLimiter.mock.callCount(), 0);
-        assert.equal(handleError.mock.callCount(), 0);
+        expect(next).toHaveBeenCalledOnce();
+        expect(getRateLimiter).not.toHaveBeenCalled();
+        expect(handleError).not.toHaveBeenCalled();
     });
 
-    void it('consumes one point and calls next in production', async () => {
-        const consume = mock.fn(() => Promise.resolve());
-        const getRateLimiter = mock.fn(() => ({ consume }));
-        const handleError = mock.fn();
-        const next = mock.fn<NextFunction>();
+    it('consumes one point and calls next in production', async () => {
+        const consume = vi.fn(() => Promise.resolve());
+        const getRateLimiter = vi.fn(() => ({ consume }));
+        const handleError = vi.fn();
+        const next = vi.fn<NextFunction>();
         const middleware = createRateLimitMiddleware({
             getEnvironment: () => applicationEnvironment.PRODUCTION,
             getRateLimiter,
@@ -36,18 +35,18 @@ void describe('createRateLimitMiddleware', () => {
         });
         const req = { ip: '127.0.0.1' } as Request;
 
-        await middleware(req, {} as Response, next);
+        await middleware(req, {} as Response, next as unknown as NextFunction);
 
-        assert.equal(getRateLimiter.mock.callCount(), 1);
-        assert.deepEqual(consume.mock.calls[0]?.arguments, ['127.0.0.1', 1]);
-        assert.equal(next.mock.callCount(), 1);
-        assert.equal(handleError.mock.callCount(), 0);
+        expect(getRateLimiter).toHaveBeenCalledOnce();
+        expect(consume).toHaveBeenCalledWith('127.0.0.1', 1);
+        expect(next).toHaveBeenCalledOnce();
+        expect(handleError).not.toHaveBeenCalled();
     });
 
-    void it('handles the error when the rate limit is exceeded', async () => {
-        const consume = mock.fn(() => Promise.reject(new Error('Rate limit exceeded')));
-        const getRateLimiter = mock.fn(() => ({ consume }));
-        const handleError = mock.fn(
+    it('handles the error when the rate limit is exceeded', async () => {
+        const consume = vi.fn(() => Promise.reject(new Error('Rate limit exceeded')));
+        const getRateLimiter = vi.fn(() => ({ consume }));
+        const handleError = vi.fn(
             (
                 _error: Error,
                 _req: Request,
@@ -56,7 +55,7 @@ void describe('createRateLimitMiddleware', () => {
                 _statusCode: number,
             ) => undefined,
         );
-        const next = mock.fn<NextFunction>();
+        const next = vi.fn<NextFunction>();
         const middleware = createRateLimitMiddleware({
             getEnvironment: () => applicationEnvironment.PRODUCTION,
             getRateLimiter,
@@ -65,13 +64,9 @@ void describe('createRateLimitMiddleware', () => {
         const req = { ip: '127.0.0.1' } as Request;
         const res = {} as Response;
 
-        await middleware(req, res, next);
+        await middleware(req, res, next as unknown as NextFunction);
 
-        assert.equal(next.mock.callCount(), 0);
-        assert.equal(handleError.mock.callCount(), 1);
-        assert.equal(handleError.mock.calls[0]?.arguments[1], req);
-        assert.equal(handleError.mock.calls[0]?.arguments[2], res);
-        assert.equal(handleError.mock.calls[0]?.arguments[3], next);
-        assert.equal(handleError.mock.calls[0]?.arguments[4], 429);
+        expect(next).not.toHaveBeenCalled();
+        expect(handleError).toHaveBeenCalledWith(expect.any(Error), req, res, next, 429);
     });
 });

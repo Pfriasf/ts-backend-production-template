@@ -1,26 +1,19 @@
-import { describe, it, mock } from 'node:test';
-import assert from 'node:assert/strict';
+import { describe, expect, it } from 'vitest';
 import type { Request } from 'express';
 import { applicationEnvironment } from '../src/constant/application';
-import type { HttpResponse } from '../src/types/types';
-import { createResponseObject } from '../src/util/responseObject';
+import responseObject from '../src/util/responseObject';
 
-void describe('createResponseObject', () => {
-    void it('builds a successful response with null data by default', () => {
-        const logInfo = mock.fn();
-        const responseObject = createResponseObject({
-            getEnvironment: () => applicationEnvironment.DEVELOPMENT,
-            logInfo,
-        });
+describe('responseObject', () => {
+    it('builds a successful response with null data by default', () => {
         const req = {
             ip: '127.0.0.1',
             method: 'GET',
             originalUrl: '/api/health',
         } as Request;
 
-        const result = responseObject(req, 200, 'Success');
+        const result = responseObject(req, 200, 'Success', applicationEnvironment.DEVELOPMENT);
 
-        assert.deepEqual(result, {
+        expect(result).toEqual({
             success: true,
             statusCode: 200,
             request: {
@@ -31,62 +24,40 @@ void describe('createResponseObject', () => {
             message: 'Success',
             data: null,
         });
-        assert.equal(logInfo.mock.callCount(), 1);
-        assert.equal(logInfo.mock.calls[0]?.arguments[0], 'CONTROLLER_RESPONSE');
     });
 
-    void it('includes the provided data', () => {
-        const responseObject = createResponseObject({
-            getEnvironment: () => applicationEnvironment.STAGING,
-            logInfo: mock.fn(),
-        });
+    it('includes the provided data', () => {
         const data = { status: 'healthy' };
         const req = {
             method: 'GET',
             originalUrl: '/api/health',
         } as Request;
 
-        const result = responseObject(req, 200, 'Success', data);
+        const result = responseObject(req, 200, 'Success', applicationEnvironment.STAGING, data);
 
-        assert.equal(result.data, data);
-        assert.equal(result.request.ip, null);
+        expect(result.data).toBe(data);
     });
 
-    void it('removes the request IP from the production response', () => {
-        const responseObject = createResponseObject({
-            getEnvironment: () => applicationEnvironment.PRODUCTION,
-            logInfo: mock.fn(),
-        });
+    it('uses null when the request IP is unavailable', () => {
+        const req = {
+            method: 'GET',
+            originalUrl: '/api/health',
+        } as Request;
+
+        const result = responseObject(req, 200, 'Success', applicationEnvironment.STAGING);
+
+        expect(result.request.ip).toBeNull();
+    });
+
+    it('removes the request IP from production responses', () => {
         const req = {
             ip: '127.0.0.1',
             method: 'POST',
             originalUrl: '/api',
         } as Request;
 
-        const result = responseObject(req, 201, 'Created');
+        const result = responseObject(req, 201, 'Created', applicationEnvironment.PRODUCTION);
 
-        assert.equal('ip' in result.request, false);
-    });
-
-    void it('does not log the request IP in production', () => {
-        let loggedResponse: HttpResponse | undefined;
-        const logInfo = mock.fn((_message: string, metadata: { meta: HttpResponse }) => {
-            loggedResponse = structuredClone(metadata.meta);
-        });
-        const responseObject = createResponseObject({
-            getEnvironment: () => applicationEnvironment.PRODUCTION,
-            logInfo,
-        });
-        const req = {
-            ip: '127.0.0.1',
-            method: 'POST',
-            originalUrl: '/api',
-        } as Request;
-
-        responseObject(req, 201, 'Created');
-
-        assert.equal(logInfo.mock.callCount(), 1);
-        assert.ok(loggedResponse);
-        assert.equal('ip' in loggedResponse.request, false);
+        expect(result.request).not.toHaveProperty('ip');
     });
 });

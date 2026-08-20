@@ -16,6 +16,7 @@ Includes best practices for code quality, error handling, logging, and developer
 - Mongoose ready (optional MongoDB integration).
 - ESLint + Prettier integration.
 - Husky + lint-staged + Commitlint ready for conventional commits.
+- Vitest unit tests, Supertest HTTP integration tests, and V8 coverage thresholds.
 - Nodemon for hot reload in development.
 - Health endpoint
 - Database migration support
@@ -44,11 +45,11 @@ api/
       colorUtil.ts             # Color utilities for log levels (console)
       envUtil.ts               # Environment validation helpers (type guards)
       healthUtil.ts            # Gathers system & application health metrics
-      logger.ts                # Winston logger (referenced by errorObject)
+      logger.ts                # Winston logger configuration
       httpError.ts             # Helper to build/pass HttpError via next()
       errorObject.ts           # Builds the HttpError object (privacy-aware)
       httpResponse.ts          # Standard success response helper
-      responseObject.ts        # Builds the HttpResponse object (logs + prod privacy)
+      responseObject.ts        # Builds the HttpResponse object (production privacy-aware)
       notFoundError.ts         # Route/entity 404 helpers
       methodNotAllowedError.ts # 405 helper for route.all()
     constant/
@@ -123,6 +124,18 @@ Run in production (requires .env.production):
 
 ```bash
 npm start
+```
+
+Run unit and HTTP integration tests:
+
+```bash
+npm test
+```
+
+Run tests with V8 coverage thresholds:
+
+```bash
+npm run test:coverage
 ```
 
 ---

@@ -1,49 +1,46 @@
-import { describe, it, mock } from 'node:test';
-import assert from 'node:assert/strict';
-import type { NextFunction, Request, Response } from 'express';
-import { createApiController } from '../src/controller/apiControllerHandler';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Request, Response } from 'express';
 import responseMessage from '../src/constant/responseMessage';
-import type { HandleError } from '../src/types/types';
+import type httpError from '../src/util/httpError';
+import type httpResponse from '../src/util/httpResponse';
 
-void describe('createApiController', () => {
-    void it('sends a successful API root response', () => {
-        const sendResponse = mock.fn();
-        const handleError = mock.fn();
-        const apiController = createApiController({
-            sendResponse,
-            handleError,
-        });
-        const req = {} as Request;
-        const res = {} as Response;
-        const next = mock.fn<NextFunction>();
+const mocks = vi.hoisted(() => ({
+    httpResponse: vi.fn<typeof httpResponse>(),
+    httpError: vi.fn<typeof httpError>(),
+}));
 
-        apiController(req, res, next);
+vi.mock('../src/util/httpResponse', () => ({ default: mocks.httpResponse }));
+vi.mock('../src/util/httpError', () => ({ default: mocks.httpError }));
 
-        assert.deepEqual(sendResponse.mock.calls[0]?.arguments, [
-            req,
-            res,
-            200,
-            responseMessage.SUCCESS,
-        ]);
-        assert.equal(handleError.mock.callCount(), 0);
+import apiController from '../src/controller/apiController';
+
+describe('apiController', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
     });
 
-    void it('handles errors from the API root response', () => {
-        const error = new Error('Response failed');
-        const sendResponse = mock.fn(() => {
-            throw error;
-        });
-        const handleError = mock.fn<HandleError>();
-        const apiController = createApiController({
-            sendResponse,
-            handleError,
-        });
+    it('sends a successful API root response', () => {
         const req = {} as Request;
         const res = {} as Response;
-        const next = mock.fn<NextFunction>();
+        const next = vi.fn();
 
         apiController(req, res, next);
 
-        assert.deepEqual(handleError.mock.calls[0]?.arguments, [error, req, res, next, 500]);
+        expect(mocks.httpResponse).toHaveBeenCalledWith(req, res, 200, responseMessage.SUCCESS);
+        expect(mocks.httpError).not.toHaveBeenCalled();
+    });
+
+    it('handles errors from the API root response', () => {
+        const error = new Error('Response failed');
+        mocks.httpResponse.mockImplementationOnce(() => {
+            throw error;
+        });
+        const req = {} as Request;
+        const res = {} as Response;
+        const next = vi.fn();
+
+        apiController(req, res, next);
+
+        expect(mocks.httpError).toHaveBeenCalledWith(error, req, res, next, 500);
     });
 });

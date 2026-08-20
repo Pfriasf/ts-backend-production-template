@@ -1,11 +1,10 @@
-import { describe, it, mock } from 'node:test';
-import assert from 'node:assert/strict';
+import { describe, expect, it, vi } from 'vitest';
 import type { NextFunction, Request, Response } from 'express';
 import globalErrorHandler from '../src/middleware/globalErrorHandler';
 import type { HttpError } from '../src/types/types';
 
-void describe('globalErrorHandler', () => {
-    void it('sends the error with its status code', () => {
+describe('globalErrorHandler', () => {
+    it('sends the error with its status code', () => {
         const error: HttpError = {
             success: false,
             statusCode: 404,
@@ -16,13 +15,13 @@ void describe('globalErrorHandler', () => {
             message: 'Not found',
             data: null,
         };
-        const json = mock.fn();
-        const status = mock.fn(() => ({ json }) as unknown as Response);
+        const json = vi.fn();
+        const status = vi.fn(() => ({ json }) as unknown as Response);
         const res = { status } as unknown as Response;
 
-        globalErrorHandler(error, {} as Request, res, mock.fn<NextFunction>());
+        globalErrorHandler(error, {} as Request, res, vi.fn() as NextFunction);
 
-        assert.deepEqual(status.mock.calls[0]?.arguments, [404]);
-        assert.deepEqual(json.mock.calls[0]?.arguments, [error]);
+        expect(status).toHaveBeenCalledWith(404);
+        expect(json).toHaveBeenCalledWith(error);
     });
 });

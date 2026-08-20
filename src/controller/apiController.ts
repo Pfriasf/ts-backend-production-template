@@ -1,8 +1,12 @@
+import type { NextFunction, Request, Response } from 'express';
 import httpResponse from '../util/httpResponse';
 import httpError from '../util/httpError';
-import { createApiController } from './apiControllerHandler';
+import responseMessage from '../constant/responseMessage';
 
-export default createApiController({
-    sendResponse: httpResponse,
-    handleError: httpError,
-});
+export default (req: Request, res: Response, next: NextFunction): void => {
+    try {
+        httpResponse(req, res, 200, responseMessage.SUCCESS);
+    } catch (error) {
+        httpError(error, req, res, next, 500);
+    }
+};

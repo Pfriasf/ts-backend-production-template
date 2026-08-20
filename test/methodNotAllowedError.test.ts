@@ -1,33 +1,31 @@
-import { describe, it, mock } from 'node:test';
-import assert from 'node:assert/strict';
-import type { NextFunction, Request, Response } from 'express';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Request, Response } from 'express';
 import responseMessage from '../src/constant/responseMessage';
-import { createMethodNotAllowedError } from '../src/util/methodNotAllowedErrorHandler';
+import type httpError from '../src/util/httpError';
 
-void describe('createMethodNotAllowedError', () => {
-    void it('creates a 405 error for a disallowed method', () => {
-        const httpError = mock.fn(
-            (
-                _error: Error,
-                _req: Request,
-                _res: Response,
-                _next: NextFunction,
-                _statusCode: number,
-            ) => undefined,
-        );
-        const methodNotAllowedError = createMethodNotAllowedError(httpError);
+const mocks = vi.hoisted(() => ({
+    httpError: vi.fn<typeof httpError>(),
+}));
+
+vi.mock('../src/util/httpError', () => ({ default: mocks.httpError }));
+
+import methodNotAllowedError from '../src/util/methodNotAllowedError';
+
+describe('methodNotAllowedError', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    it('reports a disallowed method with status 405', () => {
         const req = {} as Request;
         const res = {} as Response;
-        const next = mock.fn<NextFunction>();
+        const next = vi.fn();
 
         methodNotAllowedError(req, res, next);
 
-        const [error, receivedReq, receivedRes, receivedNext, statusCode] =
-            httpError.mock.calls[0]?.arguments ?? [];
-        assert.equal(error?.message, responseMessage.METHOD_NOT_ALLOWED);
-        assert.equal(receivedReq, req);
-        assert.equal(receivedRes, res);
-        assert.equal(receivedNext, next);
-        assert.equal(statusCode, 405);
+        const [error] = mocks.httpError.mock.calls[0] ?? [];
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toBe(responseMessage.METHOD_NOT_ALLOWED);
+        expect(mocks.httpError).toHaveBeenCalledWith(error, req, res, next, 405);
     });
 });

@@ -1,25 +1,24 @@
-import { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
+import { describe, expect, it, vi } from 'vitest';
 import os from 'node:os';
 import config from '../src/config/config';
 import healthUtil from '../src/util/healthUtil';
 
 const MEGABYTE = 1024 * 1024;
 
-void describe('healthUtil', () => {
-    void it('returns the application health', (context) => {
-        context.mock.method(process, 'uptime', () => 120.5);
-        context.mock.method(process, 'memoryUsage', () => ({
+describe('healthUtil', () => {
+    it('returns the application health', () => {
+        vi.spyOn(process, 'uptime').mockReturnValue(120.5);
+        vi.spyOn(process, 'memoryUsage').mockReturnValue({
             rss: 100 * MEGABYTE,
             heapTotal: 50 * MEGABYTE,
             heapUsed: 25 * MEGABYTE,
             external: 0,
             arrayBuffers: 0,
-        }));
+        });
 
         const result = healthUtil.getApplicationHealth();
 
-        assert.deepEqual(result, {
+        expect(result).toEqual({
             environment: config.ENV,
             uptime: '120.50 Seconds',
             memoryUsage: {
@@ -30,7 +29,7 @@ void describe('healthUtil', () => {
         });
     });
 
-    void it('returns the system health', (context) => {
+    it('returns the system health', () => {
         const cpu = {
             model: 'Test CPU',
             speed: 1000,
@@ -42,14 +41,14 @@ void describe('healthUtil', () => {
                 irq: 0,
             },
         };
-        context.mock.method(os, 'loadavg', () => [1, 2, 3]);
-        context.mock.method(os, 'cpus', () => [cpu, cpu, cpu, cpu]);
-        context.mock.method(os, 'totalmem', () => 1024 * MEGABYTE);
-        context.mock.method(os, 'freemem', () => 256 * MEGABYTE);
+        vi.spyOn(os, 'loadavg').mockReturnValue([1, 2, 3]);
+        vi.spyOn(os, 'cpus').mockReturnValue([cpu, cpu, cpu, cpu]);
+        vi.spyOn(os, 'totalmem').mockReturnValue(1024 * MEGABYTE);
+        vi.spyOn(os, 'freemem').mockReturnValue(256 * MEGABYTE);
 
         const result = healthUtil.getSystemHealth();
 
-        assert.deepEqual(result, {
+        expect(result).toEqual({
             cpuLoad: {
                 last1Minute: '25.00%',
                 last5Minutes: '50.00%',

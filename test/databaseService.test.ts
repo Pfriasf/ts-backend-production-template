@@ -1,52 +1,55 @@
-import { describe, it, mock } from 'node:test';
-import assert from 'node:assert/strict';
-import type { Connection } from 'mongoose';
-import { createDatabaseService } from '../src/service/databaseServiceHandler';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type mongoose from 'mongoose';
 
-void describe('createDatabaseService', () => {
-    void it('connects to the database and returns its connection', async () => {
-        const connection = {} as Connection;
-        const connect = mock.fn(() => Promise.resolve(undefined));
-        const getConnection = mock.fn(() => connection);
-        const logInfo = mock.fn();
-        const logError = mock.fn();
-        const service = createDatabaseService({
-            connect,
-            getConnection,
-            databaseUrl: 'mongodb://localhost/test',
-            logInfo,
-            logError,
-        });
+type MongooseInstance = Awaited<ReturnType<typeof mongoose.connect>>;
 
-        const result = await service.connect();
+const mocks = vi.hoisted(() => ({
+    connect: vi.fn<typeof mongoose.connect>(),
+    connection: {},
+    logInfo: vi.fn(),
+    logError: vi.fn(),
+}));
 
-        assert.equal(result, connection);
-        assert.deepEqual(connect.mock.calls[0]?.arguments, ['mongodb://localhost/test']);
-        assert.equal(getConnection.mock.callCount(), 1);
-        assert.deepEqual(logInfo.mock.calls[0]?.arguments, ['Database connected successfully.']);
-        assert.equal(logError.mock.callCount(), 0);
+vi.mock('mongoose', () => ({
+    default: {
+        connect: mocks.connect,
+        connection: mocks.connection,
+    },
+}));
+vi.mock('../src/config/config', () => ({
+    default: { DB_URL: 'mongodb://localhost/test' },
+}));
+vi.mock('../src/util/logger', () => ({
+    default: {
+        info: mocks.logInfo,
+        error: mocks.logError,
+    },
+}));
+
+import databaseService from '../src/service/databaseService';
+
+describe('databaseService', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        mocks.connect.mockResolvedValue({} as MongooseInstance);
     });
 
-    void it('logs and rethrows a database connection error', async () => {
+    it('connects to the database and returns its connection', async () => {
+        const result = await databaseService.connect();
+
+        expect(result).toBe(mocks.connection);
+        expect(mocks.connect).toHaveBeenCalledWith('mongodb://localhost/test');
+        expect(mocks.logInfo).toHaveBeenCalledWith('Database connected successfully.');
+        expect(mocks.logError).not.toHaveBeenCalled();
+    });
+
+    it('logs and rethrows a database connection error', async () => {
         const error = new Error('Connection failed');
-        const connect = mock.fn(() => Promise.reject(error));
-        const getConnection = mock.fn(() => {
-            throw new Error('getConnection should not be called');
-        });
-        const logInfo = mock.fn();
-        const logError = mock.fn();
-        const service = createDatabaseService({
-            connect,
-            getConnection,
-            databaseUrl: 'mongodb://localhost/test',
-            logInfo,
-            logError,
-        });
+        mocks.connect.mockRejectedValueOnce(error);
 
-        await assert.rejects(service.connect(), error);
+        await expect(databaseService.connect()).rejects.toBe(error);
 
-        assert.equal(getConnection.mock.callCount(), 0);
-        assert.equal(logInfo.mock.callCount(), 0);
-        assert.deepEqual(logError.mock.calls[0]?.arguments, ['DATABASE_ERROR', { meta: error }]);
+        expect(mocks.logInfo).not.toHaveBeenCalled();
+        expect(mocks.logError).toHaveBeenCalledWith('DATABASE_ERROR', { meta: error });
     });
 });

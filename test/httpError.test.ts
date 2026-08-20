@@ -1,30 +1,52 @@
-import { describe, it, mock } from 'node:test';
-import assert from 'node:assert/strict';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { NextFunction, Request, Response } from 'express';
+import { applicationEnvironment } from '../src/constant/application';
 import type { HttpError } from '../src/types/types';
-import { createHttpError } from '../src/util/httpErrorHandler';
+import type errorObject from '../src/util/errorObject';
 
-void describe('createHttpError', () => {
-    void it('builds the error and passes it to next', () => {
-        const errorObject: HttpError = {
+const mocks = vi.hoisted(() => ({
+    errorObject: vi.fn<typeof errorObject>(),
+    logError: vi.fn(),
+}));
+
+vi.mock('../src/config/config', () => ({
+    default: { ENV: applicationEnvironment.DEVELOPMENT },
+}));
+vi.mock('../src/util/errorObject', () => ({ default: mocks.errorObject }));
+vi.mock('../src/util/logger', () => ({
+    default: { error: mocks.logError },
+}));
+
+import httpError from '../src/util/httpError';
+
+describe('httpError', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    it('builds, logs and forwards the error', () => {
+        const response: HttpError = {
             success: false,
             statusCode: 404,
-            request: {
-                method: 'GET',
-                url: '/api/missing',
-            },
+            request: { method: 'GET', url: '/missing' },
             message: 'Not found',
             data: null,
         };
-        const buildError = mock.fn(() => errorObject);
-        const next = mock.fn<NextFunction>();
-        const httpError = createHttpError(buildError);
+        mocks.errorObject.mockReturnValue(response);
         const error = new Error('Not found');
         const req = {} as Request;
+        const res = {} as Response;
+        const next = vi.fn() as NextFunction;
 
-        httpError(error, req, {} as Response, next, 404);
+        httpError(error, req, res, next, 404);
 
-        assert.deepEqual(buildError.mock.calls[0]?.arguments, [error, req, 404]);
-        assert.deepEqual(next.mock.calls[0]?.arguments, [errorObject]);
+        expect(mocks.errorObject).toHaveBeenCalledWith(
+            error,
+            req,
+            applicationEnvironment.DEVELOPMENT,
+            404,
+        );
+        expect(mocks.logError).toHaveBeenCalledWith('CONTROLLER_ERROR', { meta: response });
+        expect(next).toHaveBeenCalledWith(response);
     });
 });

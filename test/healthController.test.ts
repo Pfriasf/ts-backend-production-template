@@ -1,82 +1,101 @@
-import { describe, it, mock } from 'node:test';
-import assert from 'node:assert/strict';
-import type { NextFunction, Request, Response } from 'express';
-import { createHealthController } from '../src/controller/healthControllerHandler';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Request, Response } from 'express';
 import { applicationEnvironment } from '../src/constant/application';
 import responseMessage from '../src/constant/responseMessage';
-import type { ApplicationHealth, HandleError, SystemHealth } from '../src/types/types';
+import type { ApplicationHealth, SystemHealth } from '../src/types/types';
+import type healthUtil from '../src/util/healthUtil';
+import type httpError from '../src/util/httpError';
+import type httpResponse from '../src/util/httpResponse';
 
 const applicationHealth: ApplicationHealth = {
-    environment: applicationEnvironment.PRODUCTION,
-    uptime: '120.00 Seconds',
+    environment: applicationEnvironment.DEVELOPMENT,
+    uptime: '10.00 Seconds',
     memoryUsage: {
-        rss: '100.00 MB',
-        heapTotal: '50.00 MB',
-        heapUsed: '25.00 MB',
+        rss: '10.00 MB',
+        heapTotal: '8.00 MB',
+        heapUsed: '4.00 MB',
     },
 };
 
 const systemHealth: SystemHealth = {
     cpuLoad: {
-        last1Minute: '25.00%',
-        last5Minutes: '50.00%',
-        last15Minutes: '75.00%',
+        last1Minute: '10.00%',
+        last5Minutes: '20.00%',
+        last15Minutes: '30.00%',
     },
     totalMemory: '1024.00 MB',
-    freeMemory: '256.00 MB',
+    freeMemory: '512.00 MB',
 };
 
-void describe('createHealthController', () => {
-    void it('sends the application and system health', () => {
-        const sendResponse = mock.fn();
-        const handleError = mock.fn();
-        const healthController = createHealthController({
-            sendResponse,
-            handleError,
-            getApplicationHealth: () => applicationHealth,
-            getSystemHealth: () => systemHealth,
-            getTimestamp: () => '2026-08-17T10:00:00.000Z',
-        });
-        const req = {} as Request;
-        const res = {} as Response;
-        const next = mock.fn<NextFunction>();
+type HealthResponseData = {
+    application: ApplicationHealth;
+    system: SystemHealth;
+    timestamp: string;
+};
 
-        healthController.status(req, res, next);
+const mocks = vi.hoisted(() => ({
+    httpResponse: vi.fn<typeof httpResponse>(),
+    httpError: vi.fn<typeof httpError>(),
+    getApplicationHealth: vi.fn<typeof healthUtil.getApplicationHealth>(),
+    getSystemHealth: vi.fn<typeof healthUtil.getSystemHealth>(),
+}));
 
-        assert.deepEqual(sendResponse.mock.calls[0]?.arguments, [
-            req,
-            res,
-            200,
-            responseMessage.SUCCESS,
-            {
-                application: applicationHealth,
-                system: systemHealth,
-                timestamp: '2026-08-17T10:00:00.000Z',
-            },
-        ]);
-        assert.equal(handleError.mock.callCount(), 0);
+vi.mock('../src/util/httpResponse', () => ({ default: mocks.httpResponse }));
+vi.mock('../src/util/httpError', () => ({ default: mocks.httpError }));
+vi.mock('../src/util/healthUtil', () => ({
+    default: {
+        getApplicationHealth: mocks.getApplicationHealth,
+        getSystemHealth: mocks.getSystemHealth,
+    },
+}));
+
+import healthController from '../src/controller/healthController';
+
+describe('healthController', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        mocks.getApplicationHealth.mockReturnValue(applicationHealth);
+        mocks.getSystemHealth.mockReturnValue(systemHealth);
     });
 
-    void it('handles errors while collecting health data', () => {
-        const error = new Error('Health check failed');
-        const sendResponse = mock.fn();
-        const handleError = mock.fn<HandleError>();
-        const healthController = createHealthController({
-            sendResponse,
-            handleError,
-            getApplicationHealth: () => {
-                throw error;
-            },
-            getSystemHealth: () => systemHealth,
-            getTimestamp: () => '2026-08-17T10:00:00.000Z',
+    afterEach(() => {
+        vi.useRealTimers();
+    });
+
+    it('sends the application and system health', () => {
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date('2026-08-17T10:00:00.000Z'));
+        const req = {} as Request;
+        const res = {} as Response;
+        const next = vi.fn();
+
+        healthController(req, res, next);
+
+        const [receivedReq, receivedRes, statusCode, message, responseData] =
+            mocks.httpResponse.mock.calls[0] ?? [];
+        const data = responseData as HealthResponseData;
+        expect(receivedReq).toBe(req);
+        expect(receivedRes).toBe(res);
+        expect(statusCode).toBe(200);
+        expect(message).toBe(responseMessage.SUCCESS);
+        expect(data.application).toEqual(applicationHealth);
+        expect(data.system).toEqual(systemHealth);
+        expect(data.timestamp).toBe('2026-08-17T10:00:00.000Z');
+        expect(mocks.httpError).not.toHaveBeenCalled();
+    });
+
+    it('handles errors while collecting health data', () => {
+        const error = new Error('Health unavailable');
+        mocks.getApplicationHealth.mockImplementationOnce(() => {
+            throw error;
         });
         const req = {} as Request;
         const res = {} as Response;
-        const next = mock.fn<NextFunction>();
+        const next = vi.fn();
 
-        healthController.status(req, res, next);
+        healthController(req, res, next);
 
-        assert.equal(sendResponse.mock.callCount(), 0);
-        assert.deepEqual(handleError.mock.calls[0]?.arguments, [error, req, res, next, 500]);
+        expect(mocks.httpResponse).not.toHaveBeenCalled();
+        expect(mocks.httpError).toHaveBeenCalledWith(error, req, res, next, 500);
     });
 });

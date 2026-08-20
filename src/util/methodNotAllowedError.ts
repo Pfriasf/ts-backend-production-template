@@ -1,4 +1,8 @@
+import type { NextFunction, Request, Response } from 'express';
+import responseMessage from '../constant/responseMessage';
 import httpError from './httpError';
-import { createMethodNotAllowedError } from './methodNotAllowedErrorHandler';
 
-export default createMethodNotAllowedError(httpError);
+export default (req: Request, res: Response, next: NextFunction): void => {
+    const error = new Error(responseMessage.METHOD_NOT_ALLOWED);
+    httpError(error, req, res, next, 405);
+};
