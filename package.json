@@ -13,8 +13,10 @@
         "start": "node --env-file=.env.production dist/server.js --enable-source-maps",
         "dev": "nodemon",
         "prepare": "husky",
+        "lint": "eslint .",
         "format:check": "prettier . --check",
         "format:fix": "prettier . --write",
+        "quality": "npm run format:check && npm run lint && npm run build && npm run test:coverage",
         "migrate:dev": "MIGRATE_MODE=development npx migrate up",
         "migrate:prod": "MIGRATE_MODE=production npx migrate up"
     },
@@ -52,6 +54,7 @@
         "rate-limiter-flexible": "^11.2.0",
         "ts-migrate-mongoose": "^5.3.3",
         "winston": "^3.17.0",
-        "winston-mongodb": "^7.0.0"
+        "winston-mongodb": "^7.0.0",
+        "zod": "^4.4.3"
     }
 }

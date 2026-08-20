@@ -1,0 +1,25 @@
+import { z } from 'zod';
+import { applicationEnvironment } from '../constant/application';
+
+const httpUrl = z.url({ protocol: /^https?$/ });
+
+const environmentSchema = z.object({
+    PORT: z.coerce.number().int().min(1).max(65535),
+    ENV: z.enum(applicationEnvironment),
+    SERVER_URL: httpUrl,
+    LOG_LEVEL: z
+        .enum(['error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly'])
+        .default('info'),
+    DB_URL: z.url({ protocol: /^mongodb(?:\+srv)?$/ }),
+    RATE_LIMIT_POINTS: z.coerce.number().int().positive().default(10),
+    RATE_LIMIT_DURATION: z.coerce.number().int().positive().default(60),
+    CORS_ORIGINS: z
+        .string()
+        .transform((value) => value.split(',').map((origin) => origin.trim()))
+        .pipe(z.array(httpUrl).min(1)),
+});
+
+export type Config = z.infer<typeof environmentSchema>;
+
+export const parseEnvironment = (variables: NodeJS.ProcessEnv): Config =>
+    environmentSchema.parse(variables);

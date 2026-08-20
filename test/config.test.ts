@@ -1,19 +1,87 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { applicationEnvironment } from '../src/constant/application';
-import type { Config } from '../src/types/types';
+import { parseEnvironment } from '../src/config/environmentSchema';
 
-describe('config', () => {
-    afterEach(() => {
-        vi.unstubAllEnvs();
-        vi.resetModules();
+const validEnvironment: NodeJS.ProcessEnv = {
+    PORT: '3001',
+    ENV: applicationEnvironment.DEVELOPMENT,
+    SERVER_URL: 'http://localhost',
+    DB_URL: 'mongodb://localhost:27017/database',
+    CORS_ORIGINS: 'http://localhost:3000',
+};
+
+describe('parseEnvironment', () => {
+    it('parses required values and applies optional defaults', () => {
+        const config = parseEnvironment(validEnvironment);
+
+        expect(config).toEqual({
+            PORT: 3001,
+            ENV: applicationEnvironment.DEVELOPMENT,
+            SERVER_URL: 'http://localhost',
+            LOG_LEVEL: 'info',
+            DB_URL: 'mongodb://localhost:27017/database',
+            RATE_LIMIT_POINTS: 10,
+            RATE_LIMIT_DURATION: 60,
+            CORS_ORIGINS: ['http://localhost:3000'],
+        });
     });
 
-    it('falls back to development when ENV is unsupported', async () => {
-        vi.stubEnv('ENV', 'preview');
+    it('parses numeric values and multiple CORS origins', () => {
+        const config = parseEnvironment({
+            ...validEnvironment,
+            PORT: '4000',
+            RATE_LIMIT_POINTS: '20',
+            RATE_LIMIT_DURATION: '120',
+            CORS_ORIGINS: 'https://example.com, https://admin.example.com',
+        });
 
-        const configModule = await import('../src/config/config.js');
-        const config = configModule.default as unknown as Config;
+        expect(config.PORT).toBe(4000);
+        expect(config.RATE_LIMIT_POINTS).toBe(20);
+        expect(config.RATE_LIMIT_DURATION).toBe(120);
+        expect(config.CORS_ORIGINS).toEqual(['https://example.com', 'https://admin.example.com']);
+    });
 
-        expect(config.ENV).toBe(applicationEnvironment.DEVELOPMENT);
+    it.each([
+        ['PORT', 'abc'],
+        ['PORT', '0'],
+        ['PORT', '65536'],
+        ['RATE_LIMIT_POINTS', '-10'],
+        ['RATE_LIMIT_DURATION', '0'],
+    ])('rejects an invalid %s value', (name, value) => {
+        expect(() => parseEnvironment({ ...validEnvironment, [name]: value })).toThrow();
+    });
+
+    it('rejects an unsupported environment', () => {
+        expect(() => parseEnvironment({ ...validEnvironment, ENV: 'preview' })).toThrow();
+    });
+
+    it('rejects invalid application URLs', () => {
+        expect(() => parseEnvironment({ ...validEnvironment, SERVER_URL: 'localhost' })).toThrow();
+        expect(() =>
+            parseEnvironment({ ...validEnvironment, DB_URL: 'https://example.com' }),
+        ).toThrow();
+        expect(() => parseEnvironment({ ...validEnvironment, DB_URL: '' })).toThrow();
+        expect(() =>
+            parseEnvironment({ ...validEnvironment, CORS_ORIGINS: 'not-a-url' }),
+        ).toThrow();
+    });
+
+    it.each(['PORT', 'ENV', 'SERVER_URL', 'DB_URL', 'CORS_ORIGINS'])('requires %s', (name) => {
+        const incompleteEnvironment = { ...validEnvironment };
+        delete incompleteEnvironment[name];
+
+        expect(() => parseEnvironment(incompleteEnvironment)).toThrow();
+    });
+
+    it('accepts a production configuration', () => {
+        const config = parseEnvironment({
+            ...validEnvironment,
+            ENV: applicationEnvironment.PRODUCTION,
+            SERVER_URL: 'https://api.example.com',
+            DB_URL: 'mongodb+srv://cluster.example.com/database',
+            CORS_ORIGINS: 'https://example.com',
+        });
+
+        expect(config.ENV).toBe(applicationEnvironment.PRODUCTION);
     });
 });

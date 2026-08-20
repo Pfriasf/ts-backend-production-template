@@ -5,6 +5,13 @@ export default defineConfig({
         include: ['test/**/*.test.ts'],
         exclude: ['dist/**'],
         restoreMocks: true,
+        env: {
+            PORT: '3001',
+            ENV: 'development',
+            SERVER_URL: 'http://localhost',
+            DB_URL: 'mongodb://localhost:27017/database',
+            CORS_ORIGINS: 'http://localhost:3000',
+        },
         coverage: {
             provider: 'v8',
             include: ['src/**/*.ts'],

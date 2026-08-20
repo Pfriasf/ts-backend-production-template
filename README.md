@@ -90,6 +90,7 @@ PORT=3003
 SERVER_URL=http://localhost
 ENV=development
 LOG_LEVEL=info
+CORS_ORIGINS=http://localhost:3000
 RATE_LIMIT_POINTS=10
 RATE_LIMIT_DURATION=60
 

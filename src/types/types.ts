@@ -25,16 +25,6 @@ export type HttpError = {
     trace?: object | null;
 };
 
-export interface Config {
-    PORT: number;
-    ENV: applicationEnvironment;
-    SERVER_URL: string;
-    LOG_LEVEL: string;
-    DB_URL: string;
-    RATE_LIMIT_POINTS: number;
-    RATE_LIMIT_DURATION: number;
-}
-
 export interface CpuLoad {
     last1Minute: string;
     last5Minutes: string;

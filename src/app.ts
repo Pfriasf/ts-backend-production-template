@@ -4,6 +4,7 @@ import globalErrorHandler from './middleware/globalErrorHandler';
 import notFoundError from './util/notFoundError';
 import helmet from 'helmet';
 import cors from 'cors';
+import config from './config/config';
 
 const app: Application = express();
 
@@ -14,7 +15,7 @@ app.use(helmet());
 app.use(
     cors({
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-        origin: ['http://localhost:3000'],
+        origin: config.CORS_ORIGINS,
         credentials: true,
     }),
 );
