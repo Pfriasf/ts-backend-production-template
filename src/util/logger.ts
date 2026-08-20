@@ -5,11 +5,11 @@ import fs from 'fs';
 import { colorizeLevel } from './colorUtil';
 import { gray, magenta } from 'colorette';
 import { MongoDB, MongoDBTransportInstance } from 'winston-mongodb';
-import { shouldBypassExternalServices } from './envUtil';
+import { shouldUseExternalLogTransports } from './envUtil';
 
-const shouldBypassExternalTransports = shouldBypassExternalServices(config.NODE_ENV);
+const shouldUseExternalTransports = shouldUseExternalLogTransports(config.NODE_ENV);
 const logsDir = path.join(__dirname, '../', '../', 'logs');
-if (!shouldBypassExternalTransports && !fs.existsSync(logsDir)) {
+if (shouldUseExternalTransports && !fs.existsSync(logsDir)) {
     fs.mkdirSync(logsDir, { recursive: true });
 }
 
@@ -79,7 +79,7 @@ const mongoDBTransport = (): Array<MongoDBTransportInstance> => {
 
 export default createLogger({
     defaultMeta: {},
-    transports: shouldBypassExternalTransports
-        ? consoleTransport()
-        : [...consoleTransport(), ...mongoDBTransport(), ...fileTransport()],
+    transports: shouldUseExternalTransports
+        ? [...consoleTransport(), ...mongoDBTransport(), ...fileTransport()]
+        : consoleTransport(),
 });

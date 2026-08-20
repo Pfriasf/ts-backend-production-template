@@ -1,0 +1,57 @@
+name: ts-backend-production-template
+
+services:
+    api:
+        build:
+            context: .
+            dockerfile: docker/development/Dockerfile
+        init: true
+        restart: unless-stopped
+        depends_on:
+            mongo:
+                condition: service_healthy
+        environment:
+            NODE_ENV: development
+            PORT: 3003
+            SERVER_URL: http://localhost
+            LOG_LEVEL: info
+            CORS_ORIGINS: http://localhost:3000
+            DB_URL: mongodb://mongo:27017/database
+            RATE_LIMIT_POINTS: 10
+            RATE_LIMIT_DURATION: 60
+        ports:
+            - '3003:3003'
+        healthcheck:
+            test:
+                [
+                    'CMD',
+                    'node',
+                    '-e',
+                    "fetch('http://localhost:3003/api/health').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))",
+                ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+            start_period: 15s
+        volumes:
+            - .:/usr/src/backend
+            - api_node_modules:/usr/src/backend/node_modules
+
+    mongo:
+        image: mongo:8.0
+        restart: unless-stopped
+        ports:
+            - '27017:27017'
+        healthcheck:
+            test:
+                ['CMD', 'mongosh', '--quiet', '--eval', "quit(db.adminCommand('ping').ok ? 0 : 2)"]
+            interval: 5s
+            timeout: 5s
+            retries: 10
+            start_period: 5s
+        volumes:
+            - mongo_data:/data/db
+
+volumes:
+    api_node_modules:
+    mongo_data:

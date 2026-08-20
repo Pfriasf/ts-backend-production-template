@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import type { NodeEnvironment } from '../constant/environment';
 import responseMessage from '../constant/responseMessage';
-import { shouldBypassExternalServices } from '../util/envUtil';
+import { shouldBypassRateLimit } from '../util/envUtil';
 
 type RateLimiter = {
     consume: (key: string, points: number) => Promise<unknown>;
@@ -23,7 +23,7 @@ type RateLimitDependencies = {
 
 export const createRateLimitMiddleware = (dependencies: RateLimitDependencies) => {
     return (req: Request, res: Response, next: NextFunction): void | Promise<void> => {
-        if (shouldBypassExternalServices(dependencies.getEnvironment())) {
+        if (shouldBypassRateLimit(dependencies.getEnvironment())) {
             next();
             return;
         }
