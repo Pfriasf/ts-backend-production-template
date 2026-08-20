@@ -6,7 +6,7 @@ import logger from './util/logger';
 
 const port = config.PORT;
 const serverUrl = config.SERVER_URL;
-const environment = config.ENV;
+const environment = config.NODE_ENV;
 
 async function startServer() {
     try {

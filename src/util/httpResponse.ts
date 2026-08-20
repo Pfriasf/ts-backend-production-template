@@ -10,7 +10,13 @@ export default (
     responseMessage: string,
     data: unknown = null,
 ): void => {
-    const response = responseObject(req, responseStatusCode, responseMessage, config.ENV, data);
+    const response = responseObject(
+        req,
+        responseStatusCode,
+        responseMessage,
+        config.NODE_ENV,
+        data,
+    );
     logger.info('CONTROLLER_RESPONSE', { meta: response });
     res.status(response.statusCode).json(response);
 };

@@ -19,7 +19,7 @@ describe('healthUtil', () => {
         const result = healthUtil.getApplicationHealth();
 
         expect(result).toEqual({
-            environment: config.ENV,
+            environment: config.NODE_ENV,
             uptime: '120.50 Seconds',
             memoryUsage: {
                 rss: '100.00 MB',

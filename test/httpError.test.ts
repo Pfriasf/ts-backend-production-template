@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { NextFunction, Request, Response } from 'express';
-import { applicationEnvironment } from '../src/constant/application';
+import { NodeEnvironment } from '../src/constant/environment';
 import type { HttpError } from '../src/types/types';
 import type errorObject from '../src/util/errorObject';
 
@@ -10,7 +10,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('../src/config/config', () => ({
-    default: { ENV: applicationEnvironment.DEVELOPMENT },
+    default: { NODE_ENV: NodeEnvironment.DEVELOPMENT },
 }));
 vi.mock('../src/util/errorObject', () => ({ default: mocks.errorObject }));
 vi.mock('../src/util/logger', () => ({
@@ -43,7 +43,7 @@ describe('httpError', () => {
         expect(mocks.errorObject).toHaveBeenCalledWith(
             error,
             req,
-            applicationEnvironment.DEVELOPMENT,
+            NodeEnvironment.DEVELOPMENT,
             404,
         );
         expect(mocks.logError).toHaveBeenCalledWith('CONTROLLER_ERROR', { meta: response });

@@ -1,4 +1,4 @@
-import { applicationEnvironment } from '../constant/application';
+import { NodeEnvironment } from '../constant/environment';
 
 export type HttpResponse = {
     success: boolean;
@@ -38,7 +38,7 @@ export interface SystemHealth {
 }
 
 export interface ApplicationHealth {
-    environment: applicationEnvironment;
+    environment: NodeEnvironment;
     uptime: string;
     memoryUsage: {
         rss: string;

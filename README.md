@@ -88,7 +88,7 @@ Example variables (from .env.example):
 
 PORT=3003
 SERVER_URL=http://localhost
-ENV=development
+NODE_ENV=development
 LOG_LEVEL=info
 CORS_ORIGINS=http://localhost:3000
 RATE_LIMIT_POINTS=10
@@ -253,7 +253,7 @@ npm run migrate:prod prune
 
 Ensure:
 
-- Correct env vars (`DB_URL`, `ENV=production`)
+- Correct env vars (`DB_URL`, `NODE_ENV=production`)
 
 ### Recommendations
 

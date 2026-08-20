@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Request, Response } from 'express';
-import { applicationEnvironment } from '../src/constant/application';
+import { NodeEnvironment } from '../src/constant/environment';
 import responseMessage from '../src/constant/responseMessage';
 import type { ApplicationHealth, SystemHealth } from '../src/types/types';
 import type healthUtil from '../src/util/healthUtil';
@@ -8,7 +8,7 @@ import type httpError from '../src/util/httpError';
 import type httpResponse from '../src/util/httpResponse';
 
 const applicationHealth: ApplicationHealth = {
-    environment: applicationEnvironment.DEVELOPMENT,
+    environment: NodeEnvironment.DEVELOPMENT,
     uptime: '10.00 Seconds',
     memoryUsage: {
         rss: '10.00 MB',

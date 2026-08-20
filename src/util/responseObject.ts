@@ -1,12 +1,12 @@
 import type { HttpResponse } from '../types/types';
-import { applicationEnvironment } from '../constant/application';
+import { NodeEnvironment } from '../constant/environment';
 import type { Request } from 'express';
 
 export default (
     req: Request,
     responseStatusCode: number,
     responseMessage: string,
-    environment: applicationEnvironment,
+    environment: NodeEnvironment,
     data: unknown = null,
 ): HttpResponse => {
     const responseObject: HttpResponse = {
@@ -21,7 +21,7 @@ export default (
         data,
     };
 
-    if (environment === applicationEnvironment.PRODUCTION) {
+    if (environment === NodeEnvironment.PRODUCTION) {
         delete responseObject.request.ip;
     }
 

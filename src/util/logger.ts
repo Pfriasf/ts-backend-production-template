@@ -7,7 +7,7 @@ import { gray, magenta } from 'colorette';
 import { MongoDB, MongoDBTransportInstance } from 'winston-mongodb';
 import { shouldBypassExternalServices } from './envUtil';
 
-const shouldBypassExternalTransports = shouldBypassExternalServices(config.ENV);
+const shouldBypassExternalTransports = shouldBypassExternalServices(config.NODE_ENV);
 const logsDir = path.join(__dirname, '../', '../', 'logs');
 if (!shouldBypassExternalTransports && !fs.existsSync(logsDir)) {
     fs.mkdirSync(logsDir, { recursive: true });
@@ -51,7 +51,7 @@ const fileLogFormat = format.printf(({ level, message, timestamp, metadata }) =>
 const fileTransport = (): Array<transports.FileTransportInstance> => {
     return [
         new transports.File({
-            filename: path.join(__dirname, '../', '../', 'logs', `${config.ENV}.log`),
+            filename: path.join(__dirname, '../', '../', 'logs', `${config.NODE_ENV}.log`),
             level: config.LOG_LEVEL,
             format: format.combine(
                 format.timestamp(),

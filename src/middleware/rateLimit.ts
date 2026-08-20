@@ -4,7 +4,7 @@ import httpError from '../util/httpError';
 import { createRateLimitMiddleware } from './rateLimitMiddleware';
 
 export default createRateLimitMiddleware({
-    getEnvironment: () => config.ENV,
+    getEnvironment: () => config.NODE_ENV,
     getRateLimiter,
     handleError: httpError,
 });

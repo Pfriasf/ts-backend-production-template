@@ -1,6 +1,8 @@
-FROM node:24-alpine AS base
+FROM node:24-alpine
 
 WORKDIR /usr/src/backend
+
+ENV HUSKY=0
 
 COPY package*.json ./
 
@@ -8,6 +10,6 @@ RUN npm ci
 
 COPY . .
 
-EXPOSE 3000
+EXPOSE 3003
 
-CMD [ "npm", "run", "dev" ]
+CMD ["npm", "run", "dev"]

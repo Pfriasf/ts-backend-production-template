@@ -21,7 +21,7 @@ export default {
     },
     getApplicationHealth: (): ApplicationHealth => {
         return {
-            environment: config.ENV,
+            environment: config.NODE_ENV,
             uptime: `${process.uptime().toFixed(2)} Seconds`,
             memoryUsage: {
                 rss: `${(process.memoryUsage().rss / (1024 * 1024)).toFixed(2)} MB`,

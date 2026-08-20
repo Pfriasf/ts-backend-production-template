@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Request, Response } from 'express';
-import { applicationEnvironment } from '../src/constant/application';
+import { NodeEnvironment } from '../src/constant/environment';
 import type { HttpResponse } from '../src/types/types';
 import type responseObject from '../src/util/responseObject';
 
@@ -10,7 +10,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('../src/config/config', () => ({
-    default: { ENV: applicationEnvironment.DEVELOPMENT },
+    default: { NODE_ENV: NodeEnvironment.DEVELOPMENT },
 }));
 vi.mock('../src/util/responseObject', () => ({ default: mocks.responseObject }));
 vi.mock('../src/util/logger', () => ({
@@ -45,7 +45,7 @@ describe('httpResponse', () => {
             req,
             201,
             'Created',
-            applicationEnvironment.DEVELOPMENT,
+            NodeEnvironment.DEVELOPMENT,
             data,
         );
         expect(mocks.logInfo).toHaveBeenCalledWith('CONTROLLER_RESPONSE', { meta: response });

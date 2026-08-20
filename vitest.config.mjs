@@ -7,7 +7,7 @@ export default defineConfig({
         restoreMocks: true,
         env: {
             PORT: '3001',
-            ENV: 'development',
+            NODE_ENV: 'test',
             SERVER_URL: 'http://localhost',
             DB_URL: 'mongodb://localhost:27017/database',
             CORS_ORIGINS: 'http://localhost:3000',

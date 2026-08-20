@@ -1,12 +1,12 @@
 import type { HttpError } from '../types/types';
 import type { Request } from 'express';
 import responseMessage from '../constant/responseMessage';
-import { applicationEnvironment } from '../constant/application';
+import { NodeEnvironment } from '../constant/environment';
 
 export default (
     err: unknown,
     req: Request,
-    environment: applicationEnvironment,
+    environment: NodeEnvironment,
     errorStatusCode: number = 500,
 ): HttpError => {
     const isError = err instanceof Error;
@@ -23,7 +23,7 @@ export default (
         trace: isError ? { error: err.stack } : null,
     };
 
-    if (environment === applicationEnvironment.PRODUCTION) {
+    if (environment === NodeEnvironment.PRODUCTION) {
         delete errorObject.request.ip;
         delete errorObject.trace;
     }

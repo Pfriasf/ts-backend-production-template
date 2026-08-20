@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { applicationEnvironment } from '../src/constant/application';
+import { NodeEnvironment } from '../src/constant/environment';
 import { parseEnvironment } from '../src/config/environmentSchema';
 
 const validEnvironment: NodeJS.ProcessEnv = {
     PORT: '3001',
-    ENV: applicationEnvironment.DEVELOPMENT,
+    NODE_ENV: NodeEnvironment.DEVELOPMENT,
     SERVER_URL: 'http://localhost',
     DB_URL: 'mongodb://localhost:27017/database',
     CORS_ORIGINS: 'http://localhost:3000',
@@ -16,7 +16,7 @@ describe('parseEnvironment', () => {
 
         expect(config).toEqual({
             PORT: 3001,
-            ENV: applicationEnvironment.DEVELOPMENT,
+            NODE_ENV: NodeEnvironment.DEVELOPMENT,
             SERVER_URL: 'http://localhost',
             LOG_LEVEL: 'info',
             DB_URL: 'mongodb://localhost:27017/database',
@@ -52,7 +52,7 @@ describe('parseEnvironment', () => {
     });
 
     it('rejects an unsupported environment', () => {
-        expect(() => parseEnvironment({ ...validEnvironment, ENV: 'preview' })).toThrow();
+        expect(() => parseEnvironment({ ...validEnvironment, NODE_ENV: 'preview' })).toThrow();
     });
 
     it('rejects invalid application URLs', () => {
@@ -66,7 +66,7 @@ describe('parseEnvironment', () => {
         ).toThrow();
     });
 
-    it.each(['PORT', 'ENV', 'SERVER_URL', 'DB_URL', 'CORS_ORIGINS'])('requires %s', (name) => {
+    it.each(['PORT', 'NODE_ENV', 'SERVER_URL', 'DB_URL', 'CORS_ORIGINS'])('requires %s', (name) => {
         const incompleteEnvironment = { ...validEnvironment };
         delete incompleteEnvironment[name];
 
@@ -76,12 +76,12 @@ describe('parseEnvironment', () => {
     it('accepts a production configuration', () => {
         const config = parseEnvironment({
             ...validEnvironment,
-            ENV: applicationEnvironment.PRODUCTION,
+            NODE_ENV: NodeEnvironment.PRODUCTION,
             SERVER_URL: 'https://api.example.com',
             DB_URL: 'mongodb+srv://cluster.example.com/database',
             CORS_ORIGINS: 'https://example.com',
         });
 
-        expect(config.ENV).toBe(applicationEnvironment.PRODUCTION);
+        expect(config.NODE_ENV).toBe(NodeEnvironment.PRODUCTION);
     });
 });

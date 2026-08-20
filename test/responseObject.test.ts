@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Request } from 'express';
-import { applicationEnvironment } from '../src/constant/application';
+import { NodeEnvironment } from '../src/constant/environment';
 import responseObject from '../src/util/responseObject';
 
 describe('responseObject', () => {
@@ -11,7 +11,7 @@ describe('responseObject', () => {
             originalUrl: '/api/health',
         } as Request;
 
-        const result = responseObject(req, 200, 'Success', applicationEnvironment.DEVELOPMENT);
+        const result = responseObject(req, 200, 'Success', NodeEnvironment.DEVELOPMENT);
 
         expect(result).toEqual({
             success: true,
@@ -33,7 +33,7 @@ describe('responseObject', () => {
             originalUrl: '/api/health',
         } as Request;
 
-        const result = responseObject(req, 200, 'Success', applicationEnvironment.STAGING, data);
+        const result = responseObject(req, 200, 'Success', NodeEnvironment.DEVELOPMENT, data);
 
         expect(result.data).toBe(data);
     });
@@ -44,7 +44,7 @@ describe('responseObject', () => {
             originalUrl: '/api/health',
         } as Request;
 
-        const result = responseObject(req, 200, 'Success', applicationEnvironment.STAGING);
+        const result = responseObject(req, 200, 'Success', NodeEnvironment.DEVELOPMENT);
 
         expect(result.request.ip).toBeNull();
     });
@@ -56,7 +56,7 @@ describe('responseObject', () => {
             originalUrl: '/api',
         } as Request;
 
-        const result = responseObject(req, 201, 'Created', applicationEnvironment.PRODUCTION);
+        const result = responseObject(req, 201, 'Created', NodeEnvironment.PRODUCTION);
 
         expect(result.request).not.toHaveProperty('ip');
     });

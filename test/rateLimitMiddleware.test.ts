@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { NextFunction, Request, Response } from 'express';
-import { applicationEnvironment } from '../src/constant/application';
+import { NodeEnvironment } from '../src/constant/environment';
 import { createRateLimitMiddleware } from '../src/middleware/rateLimitMiddleware';
 
 describe('createRateLimitMiddleware', () => {
@@ -11,7 +11,7 @@ describe('createRateLimitMiddleware', () => {
         const handleError = vi.fn();
         const next = vi.fn<NextFunction>();
         const middleware = createRateLimitMiddleware({
-            getEnvironment: () => applicationEnvironment.DEVELOPMENT,
+            getEnvironment: () => NodeEnvironment.DEVELOPMENT,
             getRateLimiter,
             handleError,
         });
@@ -29,7 +29,7 @@ describe('createRateLimitMiddleware', () => {
         const handleError = vi.fn();
         const next = vi.fn<NextFunction>();
         const middleware = createRateLimitMiddleware({
-            getEnvironment: () => applicationEnvironment.PRODUCTION,
+            getEnvironment: () => NodeEnvironment.PRODUCTION,
             getRateLimiter,
             handleError,
         });
@@ -57,7 +57,7 @@ describe('createRateLimitMiddleware', () => {
         );
         const next = vi.fn<NextFunction>();
         const middleware = createRateLimitMiddleware({
-            getEnvironment: () => applicationEnvironment.PRODUCTION,
+            getEnvironment: () => NodeEnvironment.PRODUCTION,
             getRateLimiter,
             handleError,
         });

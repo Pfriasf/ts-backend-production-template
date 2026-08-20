@@ -1,11 +1,11 @@
 import { z } from 'zod';
-import { applicationEnvironment } from '../constant/application';
+import { NodeEnvironment } from '../constant/environment';
 
 const httpUrl = z.url({ protocol: /^https?$/ });
 
 const environmentSchema = z.object({
     PORT: z.coerce.number().int().min(1).max(65535),
-    ENV: z.enum(applicationEnvironment),
+    NODE_ENV: z.enum(NodeEnvironment),
     SERVER_URL: httpUrl,
     LOG_LEVEL: z
         .enum(['error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly'])

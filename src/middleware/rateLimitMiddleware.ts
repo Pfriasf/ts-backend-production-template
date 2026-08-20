@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import type { applicationEnvironment } from '../constant/application';
+import type { NodeEnvironment } from '../constant/environment';
 import responseMessage from '../constant/responseMessage';
 import { shouldBypassExternalServices } from '../util/envUtil';
 
@@ -16,7 +16,7 @@ type RateLimitErrorHandler = (
 ) => void;
 
 type RateLimitDependencies = {
-    getEnvironment: () => applicationEnvironment;
+    getEnvironment: () => NodeEnvironment;
     getRateLimiter: () => RateLimiter;
     handleError: RateLimitErrorHandler;
 };

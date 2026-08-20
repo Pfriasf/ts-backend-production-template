@@ -1,29 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { applicationEnvironment } from '../src/constant/application';
-import { isApplicationEnvironment, shouldBypassExternalServices } from '../src/util/envUtil';
-
-describe('isApplicationEnvironment', () => {
-    for (const environment of Object.values(applicationEnvironment)) {
-        it(`accepts the ${environment} environment`, () => {
-            const result = isApplicationEnvironment(environment);
-
-            expect(result).toBe(true);
-        });
-    }
-
-    it('rejects an unsupported environment', () => {
-        const result = isApplicationEnvironment('preview');
-
-        expect(result).toBe(false);
-    });
-});
+import { NodeEnvironment } from '../src/constant/environment';
+import { shouldBypassExternalServices } from '../src/util/envUtil';
 
 describe('shouldBypassExternalServices', () => {
     it('bypasses external services in development', () => {
-        expect(shouldBypassExternalServices(applicationEnvironment.DEVELOPMENT)).toBe(true);
+        expect(shouldBypassExternalServices(NodeEnvironment.DEVELOPMENT)).toBe(true);
+    });
+
+    it('bypasses external services in tests', () => {
+        expect(shouldBypassExternalServices(NodeEnvironment.TEST)).toBe(true);
     });
 
     it('uses external services in production', () => {
-        expect(shouldBypassExternalServices(applicationEnvironment.PRODUCTION)).toBe(false);
+        expect(shouldBypassExternalServices(NodeEnvironment.PRODUCTION)).toBe(false);
     });
 });

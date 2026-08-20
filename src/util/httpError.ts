@@ -10,7 +10,7 @@ export default (
     next: NextFunction,
     errorStatusCode?: number,
 ): void => {
-    const response = errorObject(error, req, config.ENV, errorStatusCode);
+    const response = errorObject(error, req, config.NODE_ENV, errorStatusCode);
     logger.error('CONTROLLER_ERROR', { meta: response });
     next(response);
 };
