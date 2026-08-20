@@ -141,6 +141,46 @@ npm run test:coverage
 
 ---
 
+## 🐳 Development with Docker Compose
+
+Docker Compose starts the API and MongoDB with persistent local volumes. Docker with Compose is required.
+
+Build and start the services:
+
+```bash
+docker compose up --build
+```
+
+The API is available at `http://localhost:3003` and MongoDB at `mongodb://localhost:27017`.
+
+Start the services in the background:
+
+```bash
+docker compose up --build --detach
+```
+
+Follow the API logs:
+
+```bash
+docker compose logs --follow api
+```
+
+Stop the services:
+
+```bash
+docker compose down
+```
+
+To also delete the local MongoDB data and installed container dependencies:
+
+```bash
+docker compose down --volumes
+```
+
+> `--volumes` permanently deletes the data stored in the Compose volumes.
+
+---
+
 ## Migrations (MongoDB + Mongoose)
 
 The migration system lets you:
