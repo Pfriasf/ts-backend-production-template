@@ -6,10 +6,12 @@ import rateLimit from '../middleware/rateLimit';
 
 const router = Router();
 
+router.route('/health').get(healthController.health).all(methodNotAllowed);
+
+router.route('/readiness').get(healthController.readiness).all(methodNotAllowed);
+
 router.use(rateLimit);
 
 router.route('/').get(apiController).all(methodNotAllowed);
-
-router.route('/health').get(healthController).all(methodNotAllowed);
 
 export default router;

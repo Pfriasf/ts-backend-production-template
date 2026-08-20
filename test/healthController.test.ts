@@ -34,12 +34,23 @@ type HealthResponseData = {
 };
 
 const mocks = vi.hoisted(() => ({
+    connection: { readyState: 1 },
+    getRateLimiter: vi.fn(),
     httpResponse: vi.fn<typeof httpResponse>(),
     httpError: vi.fn<typeof httpError>(),
     getApplicationHealth: vi.fn<typeof healthUtil.getApplicationHealth>(),
     getSystemHealth: vi.fn<typeof healthUtil.getSystemHealth>(),
 }));
 
+vi.mock('mongoose', () => ({
+    default: {
+        connection: mocks.connection,
+        ConnectionStates: { connected: 1 },
+    },
+}));
+vi.mock('../src/config/rateLimiter', () => ({
+    getRateLimiter: mocks.getRateLimiter,
+}));
 vi.mock('../src/util/httpResponse', () => ({ default: mocks.httpResponse }));
 vi.mock('../src/util/httpError', () => ({ default: mocks.httpError }));
 vi.mock('../src/util/healthUtil', () => ({
@@ -56,6 +67,8 @@ describe('healthController', () => {
         vi.clearAllMocks();
         mocks.getApplicationHealth.mockReturnValue(applicationHealth);
         mocks.getSystemHealth.mockReturnValue(systemHealth);
+        mocks.connection.readyState = 1;
+        mocks.getRateLimiter.mockReturnValue({});
     });
 
     afterEach(() => {
@@ -69,7 +82,7 @@ describe('healthController', () => {
         const res = {} as Response;
         const next = vi.fn();
 
-        healthController(req, res, next);
+        healthController.health(req, res, next);
 
         const [receivedReq, receivedRes, statusCode, message, responseData] =
             mocks.httpResponse.mock.calls[0] ?? [];
@@ -93,9 +106,52 @@ describe('healthController', () => {
         const res = {} as Response;
         const next = vi.fn();
 
-        healthController(req, res, next);
+        healthController.health(req, res, next);
 
         expect(mocks.httpResponse).not.toHaveBeenCalled();
         expect(mocks.httpError).toHaveBeenCalledWith(error, req, res, next, 500);
+    });
+
+    it('reports that dependencies are ready', () => {
+        const req = {} as Request;
+        const res = {} as Response;
+        const next = vi.fn();
+
+        healthController.readiness(req, res, next);
+
+        expect(mocks.httpResponse).toHaveBeenCalledWith(req, res, 200, responseMessage.SUCCESS, {
+            database: 'connected',
+            rateLimiter: 'initialized',
+        });
+        expect(mocks.httpError).not.toHaveBeenCalled();
+    });
+
+    it('reports that the database is unavailable', () => {
+        mocks.connection.readyState = 0;
+        const req = {} as Request;
+        const res = {} as Response;
+        const next = vi.fn();
+
+        healthController.readiness(req, res, next);
+
+        const [error] = mocks.httpError.mock.calls[0] ?? [];
+        expect((error as Error).message).toBe(responseMessage.SERVICE_UNAVAILABLE);
+        expect(mocks.httpError).toHaveBeenCalledWith(error, req, res, next, 503);
+        expect(mocks.getRateLimiter).not.toHaveBeenCalled();
+    });
+
+    it('reports that the rate limiter is unavailable', () => {
+        const error = new Error('Rate limiter unavailable');
+        mocks.getRateLimiter.mockImplementationOnce(() => {
+            throw error;
+        });
+        const req = {} as Request;
+        const res = {} as Response;
+        const next = vi.fn();
+
+        healthController.readiness(req, res, next);
+
+        expect(mocks.httpResponse).not.toHaveBeenCalled();
+        expect(mocks.httpError).toHaveBeenCalledWith(error, req, res, next, 503);
     });
 });

@@ -18,6 +18,12 @@ describe('app integration', () => {
         expect(body.data).toBeTruthy();
     });
 
+    it('reports when the application is not ready', async () => {
+        const response = await request(app).get('/api/readiness');
+
+        expect(response.status).toBe(503);
+    });
+
     it('responds with 404 for an unknown route', async () => {
         const response = await request(app).get('/unknown');
 
