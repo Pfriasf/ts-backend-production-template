@@ -13,13 +13,13 @@ Includes best practices for code quality, error handling, logging, and developer
 - Centralized error handling and consistent HTTP responses.
 - Not Found (404) and Method Not Allowed (405) helpers.
 - Winston logging (ready for console/file/MongoDB transports).
-- Mongoose ready (optional MongoDB integration).
+- MongoDB integration through Mongoose.
 - ESLint + Prettier integration.
 - Husky + lint-staged + Commitlint ready for conventional commits.
 - Vitest unit tests, Supertest HTTP integration tests, and V8 coverage thresholds.
 - Nodemon for hot reload in development.
-- Health endpoint
-- Database migration support
+- Liveness and readiness endpoints.
+- Database migration support.
 - Enabled Helmet to enhance API security with HTTP headers.
 - CORS configuration with whitelisted origins, methods, and credentials.
 - Rate limiting: Per-IP middleware with configurable limits, backed by MongoDB datastore.
@@ -39,6 +39,7 @@ api/
       apiRouter.ts             # API routes (/api)
     controller/
       apiController.ts         # Example controller (GET /api)
+      healthController.ts      # Liveness and readiness controllers
     middleware/
       globalErrorHandler.ts    # Global error handler (final middleware)
     util/
@@ -54,17 +55,32 @@ api/
       methodNotAllowedError.ts # 405 helper for route.all()
     constant/
       responseMessage.ts       # Centralized response messages
-      application.ts           # Application constants (e.g. environment)
+      environment.ts           # Supported Node environments
     config/
-      config.ts                # App configuration (reads env vars)
+      config.ts                # Validated application configuration
+      environmentSchema.ts     # Zod schema for environment variables
+      rateLimiter.ts           # MongoDB-backed rate limiter configuration
     model/                     # (Ready for Mongoose models)
     service/                   # (Business logic)
-  .env.example
+  test/                        # Unit and Supertest HTTP integration tests
+  docker/                      # Development and production Dockerfiles
+  compose.yml                  # API and MongoDB development environment
+  .env.example                 # Environment variable reference
   package.json
   tsconfig.json
   eslint.config.mjs
+  vitest.config.mjs
   README.md
 ```
+
+---
+
+## ✅ Requirements
+
+- Node.js 24.x (the supported version range is declared in `package.json`).
+- npm 11 or a version compatible with Node.js 24.
+- A reachable MongoDB instance, locally, remotely or through Docker Compose.
+- Docker with Compose only when using the containerized workflow.
 
 ---
 
@@ -72,42 +88,52 @@ api/
 
 Copy the example and adjust values:
 
-````bash
 ```bash
 # For development environment
 cp .env.example .env.development
 
 # For production environment
 cp .env.example .env.production
-````
-
 ```
 
-Example variables (from .env.example):
-```
+The application validates its environment with Zod during startup. Missing or invalid required
+values stop the process before the HTTP server starts.
 
+```dotenv
 PORT=3003
 SERVER_URL=http://localhost
 NODE_ENV=development
 LOG_LEVEL=info
 CORS_ORIGINS=http://localhost:3000
+DB_URL=mongodb://localhost:27017/database
 RATE_LIMIT_POINTS=10
 RATE_LIMIT_DURATION=60
+```
 
-````
+`CORS_ORIGINS` accepts a comma-separated list:
+
+```dotenv
+CORS_ORIGINS=http://localhost:3000,https://app.example.com
+```
+
+`DB_URL` accepts `mongodb://` and `mongodb+srv://` URLs. `PORT`, both rate-limit values, URLs,
+`NODE_ENV`, and `LOG_LEVEL` are validated before startup.
 
 Notes:
+
 - For production, create a `.env.production` file.
-- For development, create a `.env.development` file and use `npm run dev` .
+- For development, create a `.env.development` file and use `npm run dev`.
+- Environment files containing secrets are ignored by Git; `.env.example` is safe to commit.
 
 ---
 
 ## 🧑‍💻 Development
 
 Install dependencies:
+
 ```bash
 npm install
-````
+```
 
 Run in development (hot reload with Nodemon):
 
@@ -138,6 +164,36 @@ Run tests with V8 coverage thresholds:
 ```bash
 npm run test:coverage
 ```
+
+### Quality checks
+
+Run ESLint across the complete repository:
+
+```bash
+npm run lint
+```
+
+Run the complete local quality gate—formatting, linting, build, tests and coverage:
+
+```bash
+npm run quality
+```
+
+Husky and lint-staged also run ESLint and Prettier against staged files before each commit.
+
+### Test architecture
+
+- Unit tests isolate controllers, middleware, configuration and utilities with Vitest mocks.
+- `test/app.integration.test.ts` exercises the real Express middleware and router stack with
+  Supertest, without binding a permanent network port or running `server.ts`.
+- V8 measures coverage for executable files under `src`; types, logger transport configuration
+  and the process bootstrap are excluded.
+- Coverage thresholds are configured in `vitest.config.mjs`.
+
+Operational endpoints:
+
+- `GET /api/health` reports liveness plus application and system metrics.
+- `GET /api/readiness` returns `200` when MongoDB and the rate limiter are ready, otherwise `503`.
 
 ---
 
@@ -178,6 +234,23 @@ docker compose down --volumes
 ```
 
 > `--volumes` permanently deletes the data stored in the Compose volumes.
+
+### Production image
+
+Build the multi-stage production image:
+
+```bash
+docker build --file docker/production/Dockerfile --tag ts-backend-production-template .
+```
+
+Run it with the production environment file:
+
+```bash
+docker run --env-file .env.production --publish 3003:3003 ts-backend-production-template
+```
+
+The production image runs as the unprivileged `node` user and contains compiled output plus
+production dependencies only. MongoDB must be reachable through the configured `DB_URL`.
 
 ---
 

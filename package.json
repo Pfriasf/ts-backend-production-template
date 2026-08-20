@@ -1,10 +1,11 @@
 {
     "name": "ts-backend-production-template",
     "version": "1.0.0",
+    "private": true,
+    "description": "Production-ready Express backend template with TypeScript, MongoDB and Vitest",
     "engines": {
         "node": ">=24 <25"
     },
-    "main": "src/server.js",
     "scripts": {
         "clean": "node script/clean.js",
         "build": "npm run clean && npx tsc",
