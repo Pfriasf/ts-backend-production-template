@@ -36,17 +36,34 @@ async function startServer() {
             process.exit(1);
         });
 
-        process.on('SIGINT', () => {
-            logger.info('SIGINT received, closing server...', {
-                meta: {
-                    signal: 'SIGINT',
-                },
-            });
+        let isShuttingDown = false;
+
+        const shutdown = (signal: NodeJS.Signals): void => {
+            if (isShuttingDown) {
+                return;
+            }
+
+            isShuttingDown = true;
+            logger.info('SHUTDOWN_STARTED', { meta: { signal } });
+
             server.close(() => {
-                logger.info('APPLICATION_STOPPED', { meta: { uptime: process.uptime() } });
-                process.exit(0);
+                void connection
+                    .close()
+                    .then(() => {
+                        logger.info('APPLICATION_STOPPED', {
+                            meta: { uptime: process.uptime() },
+                        });
+                        process.exit(0);
+                    })
+                    .catch((error: unknown) => {
+                        logger.error('SHUTDOWN_ERROR', { meta: error });
+                        process.exit(1);
+                    });
             });
-        });
+        };
+
+        process.once('SIGINT', () => shutdown('SIGINT'));
+        process.once('SIGTERM', () => shutdown('SIGTERM'));
     } catch (error) {
         logger.error('APPLICATION_ERROR', { meta: error });
         process.exit(1);
