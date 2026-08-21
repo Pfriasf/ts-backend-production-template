@@ -5,11 +5,9 @@ import fs from 'fs';
 import { colorizeLevel } from './colorUtil';
 import { gray, magenta } from 'colorette';
 import { MongoDB, MongoDBTransportInstance } from 'winston-mongodb';
-import { shouldUseExternalLogTransports } from './envUtil';
 
-const shouldUseExternalTransports = shouldUseExternalLogTransports(config.NODE_ENV);
 const logsDir = path.join(__dirname, '../', '../', 'logs');
-if (shouldUseExternalTransports && !fs.existsSync(logsDir)) {
+if (config.LOG_TRANSPORTS.includes('file') && !fs.existsSync(logsDir)) {
     fs.mkdirSync(logsDir, { recursive: true });
 }
 
@@ -79,7 +77,9 @@ const mongoDBTransport = (): Array<MongoDBTransportInstance> => {
 
 export default createLogger({
     defaultMeta: {},
-    transports: shouldUseExternalTransports
-        ? [...consoleTransport(), ...mongoDBTransport(), ...fileTransport()]
-        : consoleTransport(),
+    transports: [
+        ...(config.LOG_TRANSPORTS.includes('console') ? consoleTransport() : []),
+        ...(config.LOG_TRANSPORTS.includes('mongodb') ? mongoDBTransport() : []),
+        ...(config.LOG_TRANSPORTS.includes('file') ? fileTransport() : []),
+    ],
 });

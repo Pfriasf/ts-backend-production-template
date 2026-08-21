@@ -1,20 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { NodeEnvironment } from '../src/constant/environment';
-import { shouldBypassRateLimit, shouldUseExternalLogTransports } from '../src/util/envUtil';
-
-describe('shouldUseExternalLogTransports', () => {
-    it('does not use external log transports in development', () => {
-        expect(shouldUseExternalLogTransports(NodeEnvironment.DEVELOPMENT)).toBe(false);
-    });
-
-    it('does not use external log transports in tests', () => {
-        expect(shouldUseExternalLogTransports(NodeEnvironment.TEST)).toBe(false);
-    });
-
-    it('uses external log transports in production', () => {
-        expect(shouldUseExternalLogTransports(NodeEnvironment.PRODUCTION)).toBe(true);
-    });
-});
+import { shouldBypassRateLimit } from '../src/util/envUtil';
 
 describe('shouldBypassRateLimit', () => {
     it('uses the rate limiter in development', () => {

@@ -104,6 +104,7 @@ PORT=3003
 SERVER_URL=http://localhost
 NODE_ENV=development
 LOG_LEVEL=info
+LOG_TRANSPORTS=console
 CORS_ORIGINS=http://localhost:3000
 DB_URL=mongodb://localhost:27017/database
 RATE_LIMIT_POINTS=10
@@ -118,6 +119,10 @@ CORS_ORIGINS=http://localhost:3000,https://app.example.com
 
 `DB_URL` accepts `mongodb://` and `mongodb+srv://` URLs. `PORT`, both rate-limit values, URLs,
 `NODE_ENV`, and `LOG_LEVEL` are validated before startup.
+
+`LOG_TRANSPORTS` accepts a comma-separated combination of `console`, `file`, and `mongodb`.
+Managed hosting should normally use `console`; a VPS can additionally enable persistent file or
+MongoDB transports.
 
 Notes:
 

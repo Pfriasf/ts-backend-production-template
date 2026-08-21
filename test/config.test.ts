@@ -19,11 +19,27 @@ describe('parseEnvironment', () => {
             NODE_ENV: NodeEnvironment.DEVELOPMENT,
             SERVER_URL: 'http://localhost',
             LOG_LEVEL: 'info',
+            LOG_TRANSPORTS: ['console'],
             DB_URL: 'mongodb://localhost:27017/database',
             RATE_LIMIT_POINTS: 10,
             RATE_LIMIT_DURATION: 60,
             CORS_ORIGINS: ['http://localhost:3000'],
         });
+    });
+
+    it('parses and deduplicates log transports', () => {
+        const config = parseEnvironment({
+            ...validEnvironment,
+            LOG_TRANSPORTS: 'console, file, mongodb, console',
+        });
+
+        expect(config.LOG_TRANSPORTS).toEqual(['console', 'file', 'mongodb']);
+    });
+
+    it('rejects an unsupported log transport', () => {
+        expect(() =>
+            parseEnvironment({ ...validEnvironment, LOG_TRANSPORTS: 'console,cloudwatch' }),
+        ).toThrow();
     });
 
     it('parses numeric values and multiple CORS origins', () => {
